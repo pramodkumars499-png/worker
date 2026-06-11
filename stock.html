@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Inventory - My Shop Data</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: #0f172a;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .header-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            text-decoration: none;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s;
+        }
+
+        .back-btn:hover { color: #0284c7; }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .controls-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+            width: 100%;
+        }
+
+        .add-stock-trigger {
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.2);
+            transition: background-color 0.2s, transform 0.1s;
+            width: 100%;
+        }
+
+        .add-stock-trigger:hover { background-color: #0369a1; }
+        .add-stock-trigger:active { transform: scale(0.98); }
+
+        .search-bar {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-bar:focus {
+            border-color: #0284c7;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        /* Dynamic Table Layout Wrapper */
+        #dynamicTablesContainer {
+            width: 100%;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 32px 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title span {
+            background-color: #e2e8f0;
+            color: #475569;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .table-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: #475569;
+            padding: 16px;
+            font-weight: 600;
+            font-size: 14px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 15px;
+            color: #334155;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        .no-data {
+            text-align: center;
+            color: #94a3b8;
+            padding: 30px;
+            font-style: italic;
+            font-size: 14px;
+        }
+
+        /* Action Edit Button Styles */
+        .edit-row-btn {
+            background-color: #f1f5f9;
+            color: #0284c7;
+            border: 1px solid #cbd5e1;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .edit-row-btn:hover {
+            background-color: #e0f2fe;
+            border-color: #0284c7;
+        }
+
+        /* Pop-up Overlay (Modal) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: scale(0.95);
+            transition: transform 0.25s ease;
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .close-modal-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #94a3b8;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close-modal-btn:hover { color: #475569; }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .form-group input, .form-group select {
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            background-color: #fff;
+        }
+
+        .form-group input:focus, .form-group select:focus { border-color: #0284c7; }
+
+        .row-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Unit management field hidden configuration layout */
+        .custom-unit-panel {
+            display: none;
+            background-color: #f8fafc;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px dashed #0284c7;
+            margin-bottom: 16px;
+        }
+
+        .submit-btn {
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .submit-btn:hover { background-color: #0369a1; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-nav">
+            <h1>Stock Control</h1>
+            <a href="index.html" class="back-btn">← Back to Panel</a>
+        </div>
+
+        <div class="controls-wrapper">
+            <button class="add-stock-trigger" id="openModalBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Add Stock
+            </button>
+
+            <input type="text" class="search-bar" id="searchBar" placeholder="Search across all stock categories...">
+        </div>
+
+        <div id="dynamicTablesContainer"></div>
+
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="modalTitleText">Add New Inventory</h3>
+                <button class="close-modal-btn" id="closeModalBtn">&times;</button>
+            </div>
+            
+            <form id="stockForm">
+                <input type="hidden" id="editingItemKey" value="">
+
+                <div class="form-group">
+                    <label for="itemName">Item Name</label>
+                    <input type="text" id="itemName" placeholder="e.g. net bold 10 mm" required>
+                </div>
+                
+                <div class="row-inputs">
+                    <div class="form-group">
+                        <label for="itemQty">Measurement Value</label>
+                        <input type="number" step="0.01" id="itemQty" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemUnit">Unit Selector</label>
+                        <select id="itemUnit" required>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group custom-unit-panel" id="customUnitField">
+                    <label for="customUnitName" style="color: #0284c7;">Unit Name Measurement</label>
+                    <input type="text" id="customUnitName" placeholder="e.g. Boxes, Bags, Roll, Packets">
+                </div>
+
+                <div class="row-inputs">
+                    <div class="form-group">
+                        <label for="purchaseRate">Purchase Rate</label>
+                        <input type="number" step="0.01" id="purchaseRate" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="saleRate">Sale Rate</label>
+                        <input type="number" step="0.01" id="saleRate" placeholder="0.00" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitFormBtn">Save Stock (Enter)</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+
+        // Updated Configuration Object
+        const firebaseConfig = {
+            apiKey: "AIzaSyDTDU7X7B3B0a_PfUCAei4KKNG6iD3spAg",
+            authDomain: "my-stock-6f9f4.firebaseapp.com",
+            databaseURL: "https://my-stock-6f9f4-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "my-stock-6f9f4",
+            storageBucket: "my-stock-6f9f4.firebasestorage.app",
+            messagingSenderId: "440761091064",
+            appId: "1:440761091064:web:1b1ba3ed2385fe45e00c0d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const stockRef = ref(database, 'my-shop/my-stock'); 
+
+        const modalOverlay = document.getElementById('modalOverlay');
+        const openModalBtn = document.getElementById('openModalBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const stockForm = document.getElementById('stockForm');
+        const searchBar = document.getElementById('searchBar');
+        const itemUnitDropdown = document.getElementById('itemUnit');
+        const customUnitField = document.getElementById('customUnitField');
+        const customUnitNameInput = document.getElementById('customUnitName');
+        const dynamicTablesContainer = document.getElementById('dynamicTablesContainer');
+        const modalTitleText = document.getElementById('modalTitleText');
+        const submitFormBtn = document.getElementById('submitFormBtn');
+        const editingItemKeyField = document.getElementById('editingItemKey');
+
+        let completeDatabaseObject = {}; 
+
+        openModalBtn.addEventListener('click', () => {
+            resetFormStates();
+            modalTitleText.innerText = "Add New Inventory";
+            submitFormBtn.innerText = "Save Stock (Enter)";
+            document.getElementById('itemName').disabled = false;
+            modalOverlay.classList.add('active');
+            document.getElementById('itemName').focus(); 
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            modalOverlay.classList.remove('active');
+            resetFormStates();
+        });
+
+        modalOverlay.addEventListener('click', (e) => {
+            if(e.target === modalOverlay) {
+                modalOverlay.classList.remove('active');
+                resetFormStates();
+            }
+        });
+
+        itemUnitDropdown.addEventListener('change', () => {
+            if (itemUnitDropdown.value === 'CUSTOM_UNIT') {
+                customUnitField.style.display = 'flex';
+                customUnitNameInput.required = true;
+                customUnitNameInput.focus();
+            } else {
+                customUnitField.style.display = 'none';
+                customUnitNameInput.required = false;
+                customUnitNameInput.value = '';
+            }
+        });
+
+        function resetFormStates() {
+            stockForm.reset();
+            editingItemKeyField.value = "";
+            customUnitField.style.display = 'none';
+            customUnitNameInput.required = false;
+            rebuildModalSelectMenu();
+        }
+
+        // --- GLOBAL WINDOW ATTACHED FUNCTION TO TRIGGER EDIT FROM TABLE ---
+        window.triggerEditItemRecord = function(itemKeyReference) {
+            resetFormStates();
+            
+            const targetItem = completeDatabaseObject[itemKeyReference];
+            if(!targetItem) return;
+
+            // Fill details into the form inputs
+            editingItemKeyField.value = itemKeyReference;
+            document.getElementById('itemName').value = targetItem.itemName || itemKeyReference;
+            // Disable changing names to keep the direct database tracking clean
+            document.getElementById('itemName').disabled = true; 
+            document.getElementById('itemQty').value = targetItem.quantity || 0;
+            document.getElementById('purchaseRate').value = targetItem.purchaseRate || 0;
+            document.getElementById('saleRate').value = targetItem.saleRate || 0;
+
+            // Pre-select correct dropdown metric element
+            itemUnitDropdown.value = targetItem.unit || "";
+
+            // Change form titles to reflect editing mode status
+            modalTitleText.innerText = "Update Existing Inventory Item";
+            submitFormBtn.innerText = "Update Stock Record";
+
+            // Open the view modal container frame
+            modalOverlay.classList.add('active');
+            document.getElementById('itemQty').focus();
+        };
+
+        stockForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            let cleanName = editingItemKeyField.value;
+            let rawName = document.getElementById('itemName').value.trim();
+            
+            if(!cleanName) {
+                cleanName = rawName.replace(/[\.\#\$\[\]\/]/g, "-");
+            }
+
+            const qty = parseFloat(document.getElementById('itemQty').value);
+            
+            let unit = itemUnitDropdown.value;
+            if (unit === 'CUSTOM_UNIT') {
+                const formattedValue = customUnitNameInput.value.trim();
+                unit = formattedValue.charAt(0).toUpperCase() + formattedValue.slice(1);
+            }
+
+            const pRate = parseFloat(document.getElementById('purchaseRate').value);
+            const sRate = parseFloat(document.getElementById('saleRate').value);
+
+            const specificItemRef = ref(database, 'my-shop/my-stock/' + cleanName);
+
+            set(specificItemRef, {
+                itemName: rawName, 
+                quantity: qty,
+                unit: unit,
+                purchaseRate: pRate,
+                saleRate: sRate
+            }).then(() => {
+                resetFormStates();
+                modalOverlay.classList.remove('active'); 
+            }).catch((error) => {
+                alert("Database Error: " + error.message);
+            });
+        });
+
+        function rebuildModalSelectMenu() {
+            const liveUniqueUnitsSet = new Set();
+            for (let id in completeDatabaseObject) {
+                if (completeDatabaseObject[id].unit) {
+                    liveUniqueUnitsSet.add(completeDatabaseObject[id].unit);
+                }
+            }
+
+            let dropdownMarkup = '<option value="">Select Unit</option>';
+            liveUniqueUnitsSet.forEach(existingUnit => {
+                dropdownMarkup += `<option value="${existingUnit}">${existingUnit}</option>`;
+            });
+            dropdownMarkup += `<option value="CUSTOM_UNIT" style="font-weight: bold; color: #0284c7;">+ Add Custom Unit...</option>`;
+            
+            itemUnitDropdown.innerHTML = dropdownMarkup;
+        }
+
+        function renderSeparatedTables(dataMap) {
+            const liveUniqueUnitsSet = new Set();
+            for (let id in completeDatabaseObject) {
+                if (completeDatabaseObject[id].unit) {
+                    liveUniqueUnitsSet.add(completeDatabaseObject[id].unit);
+                }
+            }
+
+            dynamicTablesContainer.innerHTML = '';
+            rebuildModalSelectMenu();
+
+            if (liveUniqueUnitsSet.size === 0) {
+                dynamicTablesContainer.innerHTML = `<div class="no-data" style="background:white; border-radius:16px; padding:40px; border:1px dashed #cbd5e1;">No inventory data logs saved in database yet. Click "Add Stock" to populate entries.</div>`;
+                return;
+            }
+
+            liveUniqueUnitsSet.forEach(activeUnit => {
+                const associatedItemsArray = [];
+                for (let id in dataMap) {
+                    if (dataMap[id].unit === activeUnit) {
+                        associatedItemsArray.push({ id: id, data: dataMap[id] });
+                    }
+                }
+
+                if (associatedItemsArray.length === 0) return;
+
+                const blockSectionElement = document.createElement('div');
+                blockSectionElement.className = 'table-section-block';
+
+                blockSectionElement.innerHTML = `
+                    <div class="section-title">${activeUnit} Stock Entries <span>${associatedItemsArray.length}</span></div>
+                    <div class="table-card">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Item Name</th>
+                                    <th>Stock Volume</th>
+                                    <th>Purchase Rate</th>
+                                    <th>Sale Rate</th>
+                                    <th style="text-align: right; padding-right:24px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${associatedItemsArray.map(itemObj => {
+                                    const displayTitleName = itemObj.data.itemName || itemObj.id;
+                                    const pRateFormatted = parseFloat(itemObj.data.purchaseRate || 0).toFixed(2);
+                                    const sRateFormatted = parseFloat(itemObj.data.saleRate || 0).toFixed(2);
+                                    return `
+                                        <tr>
+                                            <td><strong>${displayTitleName}</strong></td>
+                                            <td>${itemObj.data.quantity} ${activeUnit.toLowerCase()}</td>
+                                            <td>₹ ${pRateFormatted}</td>
+                                            <td>₹ ${sRateFormatted}</td>
+                                            <td style="text-align: right; padding-right:16px;">
+                                                <button class="edit-row-btn" onclick="triggerEditItemRecord('${itemObj.id}')">
+                                                    ✏️ Edit
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                dynamicTablesContainer.appendChild(blockSectionElement);
+            });
+        }
+
+        onValue(stockRef, (snapshot) => {
+            const data = snapshot.val();
+            completeDatabaseObject = data || {}; 
+            executeFilteringRoutine(); 
+        });
+
+        function executeFilteringRoutine() {
+            const filterTerm = searchBar.value.toLowerCase().trim();
+            
+            if (filterTerm === "") {
+                renderSeparatedTables(completeDatabaseObject);
+                return;
+            }
+
+            const filteredResultMap = {};
+            for (let id in completeDatabaseObject) {
+                const record = completeDatabaseObject[id];
+                const matchName = record.itemName ? record.itemName : id;
+                if (matchName.toLowerCase().includes(filterTerm)) {
+                    filteredResultMap[id] = record;
+                }
+            }
+            renderSeparatedTables(filteredResultMap);
+        }
+
+        searchBar.addEventListener('input', executeFilteringRoutine);
+    </script>
+</body>
+</html>

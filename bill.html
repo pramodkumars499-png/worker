@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing Operations - My Shop Data</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: #0f172a;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .header-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            text-decoration: none;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s;
+        }
+        .back-btn:hover { color: #0284c7; }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        /* ACTIONS PANEL BAR */
+        .action-button-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 32px;
+            width: 100%;
+        }
+
+        .op-btn {
+            border: none;
+            padding: 18px 24px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            color: white;
+            box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .sales-invoice-btn {
+            background-color: #0284c7;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+        }
+        .sales-invoice-btn:hover { background-color: #0369a1; }
+
+        .return-exchange-btn {
+            background-color: #f59e0b;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+        }
+        .return-exchange-btn:hover { background-color: #d97706; }
+
+        .op-btn:active { transform: scale(0.98); }
+
+        /* SEARCH BAR AND CONTROLS */
+        .archive-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 16px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 24px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title span {
+            background-color: #e2e8f0;
+            color: #475569;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .search-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .search-wrapper input {
+            padding: 10px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #0f172a;
+            outline: none;
+            min-width: 250px;
+            transition: border-color 0.2s;
+        }
+        .search-wrapper input:focus { border-color: #0284c7; }
+
+        .filter-select {
+            padding: 10px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #334155;
+            background-color: white;
+            outline: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: border-color 0.2s;
+        }
+        .filter-select:focus { border-color: #0284c7; }
+
+        /* LOG ARCHIVE DISPLAY LAYOUT */
+        #historyContainerWrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .bill-archive-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .bill-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px dashed #e2e8f0;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .type-badge {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+        .badge-sale { background-color: #e0f2fe; color: #0369a1; }
+        .badge-return { background-color: #fef3c7; color: #b45309; }
+
+        /* CARD WORKFLOW BUTTON ACTION GROUP STYLES */
+        .card-actions-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+            justify-content: flex-end;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 14px;
+        }
+        .action-card-btn {
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+        .btn-view { background-color: #f1f5f9; color: #334155; }
+        .btn-view:hover { background-color: #e2e8f0; }
+        .btn-print { background-color: #e0f2fe; color: #0369a1; }
+        .btn-print:hover { background-color: #bae6fd; }
+        .btn-share { background-color: #e8f5e9; color: #2e7d32; }
+        .btn-share:hover { background-color: #c8e6c9; }
+
+        .no-data-card {
+            background: white;
+            border: 1px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            color: #94a3b8;
+            font-style: italic;
+            width: 100%;
+        }
+
+        /* MODAL POPUPS BASE */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 999; opacity: 0; pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .modal-box {
+            background: white; padding: 32px; border-radius: 16px;
+            width: 100%; max-width: 1000px; max-height: 85vh;
+            overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0;
+        }
+
+        .close-modal-btn { background: none; border: none; font-size: 26px; color: #94a3b8; cursor: pointer; }
+
+        /* FORM ELEMENTS */
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+        .form-group label { font-size: 13px; font-weight: 600; color: #475569; }
+        .form-group input, .form-group select {
+            padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: #0284c7; }
+
+        .row-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        /* INVOICE ROWS STYLES */
+        .block-section-heading {
+            font-size: 14px; font-weight: 700; color: #1e293b;
+            text-transform: uppercase; margin: 20px 0 10px 0;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .add-row-small-btn {
+            background: #f1f5f9; color: #0284c7; border: 1px dashed #0284c7;
+            padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;
+        }
+
+        .bill-item-row {
+            display: grid; grid-template-columns: 1.2fr 2fr 0.8fr 1fr 1fr auto;
+            gap: 10px; align-items: center; background-color: #f8fafc;
+            padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 8px;
+        }
+
+        .return-item-row {
+            grid-template-columns: 1.2fr 2.5fr 1fr 1.5fr auto !important;
+        }
+
+        .input-match-success { border: 2px solid #22c55e !important; background-color: #f0fdf4 !important; }
+        .input-match-failed { border: 2px solid #ef4444 !important; background-color: #fef2f2 !important; }
+
+        .delete-row { background: none; border: none; color: #ef4444; font-size: 20px; cursor: pointer; }
+
+        .calculation-summary-bar {
+            background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 16px;
+            border-radius: 12px; margin-top: 16px; display: flex; flex-direction: column; gap: 8px;
+        }
+        .summary-line { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; }
+
+        /* ERROR VALIDATION ALERT STYLES */
+        .validation-warning-banner {
+            display: none;
+            background-color: #fef2f2;
+            border: 1px solid #fee2e2;
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: #b91c1c;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 14px;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .final-action-submit {
+            background-color: #0284c7; color: white; border: none; padding: 14px;
+            border-radius: 8px; font-size: 15px; font-weight: 700; width: 100%; margin-top: 16px; cursor: pointer;
+        }
+        .final-action-submit.orange-btn { background-color: #f59e0b; }
+
+        /* RENDERING PRINT & IMAGE INVOICE LAYOUT DESIGNS */
+        .invoice-print-card {
+            background: white; padding: 40px; border-radius: 0; color: #000; width: 100%; max-width: 800px; margin: 0 auto;
+        }
+        .invoice-print-table {
+            width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px;
+        }
+        .invoice-print-table th {
+            background-color: #f1f5f9; color: #1e293b; padding: 10px; font-weight: 700; font-size: 13px; border: 1px solid #cbd5e1; text-align: left;
+        }
+        .invoice-print-table td {
+            padding: 12px 10px; border: 1px solid #cbd5e1; font-size: 14px; color: #0f172a;
+        }
+
+        /* PRINT MEDIA CSS HANDLING RULES */
+        @media print {
+            body * { visibility: hidden; }
+            #printableInvoiceAreaContainer, #printableInvoiceAreaContainer * { visibility: visible; }
+            #printableInvoiceAreaContainer { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print-element { display: none !important; }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-nav">
+            <h1>Customer Billing Terminal</h1>
+            <a href="index.html" class="back-btn">← Main Menu</a>
+        </div>
+
+        <div class="action-button-grid">
+            <button class="op-btn sales-invoice-btn" id="openSalesModalBtn">
+                ➕ Standard Sales Bill (Outward Sale)
+            </button>
+            <button class="op-btn return-exchange-btn" id="openReturnModalBtn">
+                🔄 Customer Return / Exchange Invoice
+            </button>
+        </div>
+
+        <div class="archive-header-bar">
+            <div class="section-title">Customer Ledger Invoices <span id="billCountDisplay">0</span></div>
+            <div class="search-wrapper">
+                <select id="filterMonth" class="filter-select">
+                    <option value="">All Months</option>
+                    <option value="01">January</option>
+                    <option value="02">February</option>
+                    <option value="03">March</option>
+                    <option value="04">April</option>
+                    <option value="05">May</option>
+                    <option value="06">June</option>
+                    <option value="07">July</option>
+                    <option value="08">August</option>
+                    <option value="09">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+
+                <select id="filterYear" class="filter-select">
+                    <option value="">All Years</option>
+                    <option value="2026">2026</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                </select>
+
+                <input type="text" id="customerBillSearch" placeholder="Search Customer Name or Bill ID...">
+            </div>
+        </div>
+
+        <div id="historyContainerWrapper">
+            <div class="no-data-card">Connecting to billing matrix servers...</div>
+        </div>
+    </div>
+
+
+    <div class="modal-overlay" id="salesModalOverlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>New Sales Bill Entry</h2>
+                <button class="close-modal-btn" onclick="closeAllModals()">&times;</button>
+            </div>
+            
+            <div class="validation-warning-banner" id="salesValidationBanner">
+                ⚠️ Cannot save invoice! One or more item names are invalid (marked in red). Please select valid stock items from the list.
+            </div>
+
+            <form id="salesForm">
+                <div class="row-inputs">
+                    <div class="form-group">
+                        <label>Invoice Number</label>
+                        <input type="text" class="generatedBillNumField" readonly style="background-color:#f1f5f9; font-weight:700; color:#0284c7;">
+                    </div>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="salesDate" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Customer Name</label>
+                    <input type="text" id="salesCustomerName" placeholder="Enter Customer Name" required>
+                </div>
+
+                <div class="block-section-heading">
+                    <span>Products Sold</span>
+                    <button type="button" class="add-row-small-btn" id="addSalesItemRowBtn">+ Add Product Line</button>
+                </div>
+                <div id="salesRowsContainer"></div>
+
+                <div class="calculation-summary-bar">
+                    <div class="summary-line" style="color:#166534; font-size:16px; border-top:1px dashed #cbd5e1; padding-top:8px;">
+                        <span>Grand Receivable Total:</span>
+                        <span>₹ <span id="salesGrandTotalText">0.00</span></span>
+                    </div>
+                </div>
+                <button type="submit" class="final-action-submit">Commit & Save Sales Invoice</button>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="modal-overlay" id="returnModalOverlay">
+        <div class="modal-box" style="border-top: 6px solid #f59e0b;">
+            <div class="modal-header">
+                <h2>Return & Material Exchange Management Terminal</h2>
+                <button class="close-modal-btn" onclick="closeAllModals()">&times;</button>
+            </div>
+
+            <div class="validation-warning-banner" id="returnValidationBanner">
+                ⚠️ Cannot save transaction details! One or more item names are invalid (marked in red). Please select valid stock items.
+            </div>
+
+            <form id="returnForm">
+                <div class="row-inputs">
+                    <div class="form-group">
+                        <label>Invoice Number</label>
+                        <input type="text" class="generatedBillNumField" readonly style="background-color:#f1f5f9; font-weight:700; color:#b45309;">
+                    </div>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="returnDate" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Customer Name</label>
+                    <input type="text" id="returnCustomerName" placeholder="Enter Customer Name" required>
+                </div>
+
+                <div class="block-section-heading" style="color:#ef4444; border-bottom:1px solid #fecaca; padding-bottom:4px;">
+                    <span>1. Material Returned By Customer (+ Stock Restored)</span>
+                    <button type="button" class="add-row-small-btn" id="addReturnItemRowBtn" style="color:#ef4444; border-color:#fca5a5;">+ Add Returned Row</button>
+                </div>
+                <div id="returnRowsContainer"></div>
+
+                <div class="block-section-heading" style="color:#22c55e; border-bottom:1px solid #bbf7d0; padding-bottom:4px; margin-top:24px;">
+                    <span>2. New Exchange Material Issued (- Stock Reduced)</span>
+                    <button type="button" class="add-row-small-btn" id="addExchangeItemRowBtn" style="color:#22c55e; border-color:#86efac;">+ Add Exchange Row</button>
+                </div>
+                <div id="exchangeRowsContainer"></div>
+
+                <div class="calculation-summary-bar">
+                    <div class="summary-line" style="color: #ef4444;">
+                        <span>Total Materials Returned Worth:</span>
+                        <span>₹ <span id="totalReturnedValueText">0.00</span></span>
+                    </div>
+                    <div class="summary-line" style="color: #22c55e;">
+                        <span>Total New Exchange Issued Worth:</span>
+                        <span>₹ <span id="totalIssuedValueText">0.00</span></span>
+                    </div>
+                    <div class="summary-line" id="netBalanceWrapperLine" style="font-size:16px; border-top:2px dashed #cbd5e1; padding-top:8px;">
+                        <span id="netBalanceLabelType">Net Settlement Balance:</span>
+                        <span>₹ <span id="netSettlementTotalText">0.00</span></span>
+                    </div>
+                </div>
+                <button type="submit" class="final-action-submit orange-btn">Post Return & Exchange Adjustment</button>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="modal-overlay" id="viewInvoiceModalOverlay">
+        <div class="modal-box" style="max-width: 880px; background-color: #525659; padding: 20px;">
+            <div class="modal-header" style="border-bottom: 1px solid #404446; margin-bottom: 15px; padding-bottom: 10px;">
+                <h3 style="color: white;">Invoice Document Viewer</h3>
+                <div style="display:flex; gap:12px; align-items:center;">
+                    <button type="button" class="action-card-btn btn-print" id="modalActionPrintTrigger">🖨️ Direct Print</button>
+                    <button type="button" class="action-card-btn btn-view" id="modalActionJpgTrigger" style="background-color:#0284c7; color:white;">🖼️ Save As JPG</button>
+                    <button type="button" class="action-card-btn btn-share" id="modalActionShareTrigger">🔗 Share Bill</button>
+                    <button class="close-modal-btn" onclick="closeAllModals()" style="color:#d1d5db;">&times;</button>
+                </div>
+            </div>
+            
+            <div style="overflow-x: auto; padding: 10px 0;">
+                <div id="printableInvoiceAreaContainer">
+                    <div class="invoice-print-card" id="capturedInvoiceElementFrame">
+                        <div style="display:flex; justify-content:space-between; border-bottom:2px dashed #0f172a; padding-bottom:20px; margin-bottom:20px;">
+                            <div>
+                                <h2 style="font-size:24px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">BALAJI TRADING</h2>
+                                <p style="font-size:13px; color:#475569; margin-top:4px;">quotation</p>
+                            </div>
+                            <div style="text-align:right;">
+                                <div id="printInvoiceTypeBadge" style="display:inline-block; font-size:11px; font-weight:800; padding:4px 8px; border-radius:4px; text-transform:uppercase; margin-bottom:6px;">SALE RECEIPT</div>
+                                <p style="font-size:14px; font-weight:700; color:#0284c7;" id="printInvoiceNumberLabel">Invoice No: #00</p>
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:24px; font-size:14px;">
+                            <div>
+                                <span style="font-size:11px; text-transform:uppercase; color:#64748b; font-weight:600; display:block; margin-bottom:4px;">Billed Customer Reference</span>
+                                <strong style="font-size:16px; color:#0f172a;" id="printCustomerNameLabel">Walk-in Customer</strong>
+                            </div>
+                            <div style="text-align:right;">
+                                <span style="font-size:11px; text-transform:uppercase; color:#64748b; font-weight:600; display:block; margin-bottom:4px;">Date of Issue</span>
+                                <strong style="font-size:15px; color:#0f172a;" id="printInvoiceDateLabel">2026-01-01</strong>
+                            </div>
+                        </div>
+
+                        <table class="invoice-print-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:50%;">Product Details / Description</th>
+                                    <th>Unit</th>
+                                    <th style="text-align:center;">Quantity</th>
+                                    <th style="text-align:right;">Rate Factor</th>
+                                    <th style="text-align:right;">Total Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="printInvoiceTableBodyRows"></tbody>
+                        </table>
+
+                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-top:20px; border-top:1px dashed #cbd5e1; padding-top:14px;">
+                            <div style="display:flex; width:300px; justify-content:between; font-size:14px;" id="printReturnedWorthRowWrapper">
+                                <span style="color:#ef4444; font-weight:600; width:60%;">Returned Worth:</span>
+                                <span style="width:40%; text-align:right; font-weight:700;" id="printReturnedWorthLabel">₹0.00</span>
+                            </div>
+                            <div style="display:flex; width:300px; justify-content:between; font-size:14px;" id="printIssuedWorthRowWrapper">
+                                <span style="color:#22c55e; font-weight:600; width:60%;">New Issued Worth:</span>
+                                <span style="width:40%; text-align:right; font-weight:700;" id="printIssuedWorthLabel">₹0.00</span>
+                            </div>
+                            <div style="display:flex; width:300px; justify-content:between; font-size:16px; margin-top:6px; background-color:#f8fafc; padding:8px; border-radius:6px;">
+                                <span style="font-weight:700; color:#0f172a; width:60%;" id="printFinalSummaryLabelType">Grand Total:</span>
+                                <span style="width:40%; text-align:right; font-weight:800; color:#0f172a;" id="printFinalSummaryAmountText">₹0.00</span>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:50px; padding-top:20px; border-top:1px solid #e2e8f0; text-align:center; font-size:11px; color:#94a3b8;">
+                            Thank you for doing business with us. This is an automatically generated electronic accounting ledger statement.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dynamicDatalistContainer"></div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+
+        // Updated Configuration Object
+        const firebaseConfig = {
+            apiKey: "AIzaSyDTDU7X7B3B0a_PfUCAei4KKNG6iD3spAg",
+            authDomain: "my-stock-6f9f4.firebaseapp.com",
+            databaseURL: "https://my-stock-6f9f4-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "my-stock-6f9f4",
+            storageBucket: "my-stock-6f9f4.firebasestorage.app",
+            messagingSenderId: "440761091064",
+            appId: "1:440761091064:web:1b1ba3ed2385fe45e00c0d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        const stockRef = ref(database, 'my-shop/my-stock');
+        const customerBillsRef = ref(database, 'my-shop/customer-bills');
+
+        const salesModalOverlay = document.getElementById('salesModalOverlay');
+        const returnModalOverlay = document.getElementById('returnModalOverlay');
+        const viewInvoiceModalOverlay = document.getElementById('viewInvoiceModalOverlay');
+        const historyContainerWrapper = document.getElementById('historyContainerWrapper');
+        const billCountDisplay = document.getElementById('billCountDisplay');
+        const customerBillSearch = document.getElementById('customerBillSearch');
+        
+        const filterMonth = document.getElementById('filterMonth');
+        const filterYear = document.getElementById('filterYear');
+        const dynamicDatalistContainer = document.getElementById('dynamicDatalistContainer');
+
+        const salesValidationBanner = document.getElementById('salesValidationBanner');
+        const returnValidationBanner = document.getElementById('returnValidationBanner');
+
+        let currentLiveStockInventory = {};
+        let activeUnitsArray = [];
+        let nextBillSequenceStr = "01";
+        let localBillsHistoryCache = [];
+        let activeViewBillContext = null;
+
+        function initializeDefaultDateFilters() {
+            const today = new Date();
+            const currentMonthNumeric = String(today.getMonth() + 1).padStart(2, '0');
+            const currentYearNumeric = String(today.getFullYear());
+            filterMonth.value = currentMonthNumeric;
+            filterYear.value = currentYearNumeric;
+        }
+
+        initializeDefaultDateFilters();
+
+        onValue(stockRef, (snapshot) => {
+            currentLiveStockInventory = snapshot.val() || {};
+            rebuildBillingDatalists();
+            updateAllExistingUnitDropdowns();
+        });
+
+        function rebuildBillingDatalists() {
+            const extractedUnitsSet = new Set();
+            for (let key in currentLiveStockInventory) {
+                if (currentLiveStockInventory[key].unit) {
+                    extractedUnitsSet.add(currentLiveStockInventory[key].unit);
+                }
+            }
+            
+            activeUnitsArray = Array.from(extractedUnitsSet);
+            dynamicDatalistContainer.innerHTML = '';
+            
+            activeUnitsArray.forEach(unitName => {
+                const datalistElement = document.createElement('datalist');
+                datalistElement.id = 'datalist_' + unitName.replace(/\s+/g, '_');
+                
+                for (let key in currentLiveStockInventory) {
+                    const item = currentLiveStockInventory[key];
+                    if (item.unit === unitName && item.itemName) {
+                        const opt = document.createElement('option');
+                        opt.value = item.itemName;
+                        datalistElement.appendChild(opt);
+                    }
+                }
+                dynamicDatalistContainer.appendChild(datalistElement);
+            });
+        }
+
+        function updateAllExistingUnitDropdowns() {
+            document.querySelectorAll('.item-unit').forEach(selectNode => {
+                const currentlySelectedValue = selectNode.value;
+                populateUnitDropdownElement(selectNode);
+                selectNode.value = currentlySelectedValue; 
+            });
+        }
+
+        function populateUnitDropdownElement(dropdownSelectNode) {
+            let optionsMarkup = '<option value="">Unit</option>';
+            activeUnitsArray.forEach(unit => {
+                optionsMarkup += `<option value="${unit}">${unit}</option>`;
+            });
+            dropdownSelectNode.innerHTML = optionsMarkup;
+        }
+
+        window.closeAllModals = function() {
+            salesModalOverlay.classList.remove('active');
+            returnModalOverlay.classList.remove('active');
+            viewInvoiceModalOverlay.classList.remove('active');
+            salesValidationBanner.style.display = 'none';
+            returnValidationBanner.style.display = 'none';
+        };
+
+        document.getElementById('openSalesModalBtn').addEventListener('click', () => {
+            document.getElementById('salesRowsContainer').innerHTML = '';
+            document.getElementById('salesForm').reset();
+            salesValidationBanner.style.display = 'none';
+            document.getElementById('salesDate').valueAsDate = new Date();
+            setGeneratedInvoiceIds(nextBillSequenceStr);
+            addGenericRowItem('SALES', 'salesRowsContainer');
+            runSalesCalculationEngine();
+            salesModalOverlay.classList.add('active');
+        });
+
+        document.getElementById('openReturnModalBtn').addEventListener('click', () => {
+            document.getElementById('returnRowsContainer').innerHTML = '';
+            document.getElementById('exchangeRowsContainer').innerHTML = '';
+            document.getElementById('returnForm').reset();
+            returnValidationBanner.style.display = 'none';
+            document.getElementById('returnDate').valueAsDate = new Date();
+            setGeneratedInvoiceIds(nextBillSequenceStr);
+            addGenericRowItem('RETURN_IN', 'returnRowsContainer');
+            addGenericRowItem('EXCHANGE_OUT', 'exchangeRowsContainer');
+            runReturnExchangeCalculationEngine();
+            returnModalOverlay.classList.add('active');
+        });
+
+        function setGeneratedInvoiceIds(idStr) {
+            const nodes = document.querySelectorAll('.generatedBillNumField');
+            nodes.forEach(n => n.value = idStr);
+        }
+
+        function addGenericRowItem(modeType, wrapperContainerId, prefilledData = null) {
+            const containerNode = document.getElementById(wrapperContainerId);
+            const rowId = 'row_' + Date.now() + Math.random().toString(36).substr(2, 4);
+            const rowDiv = document.createElement('div');
+            
+            const isPureReturn = (modeType === 'RETURN_IN');
+            rowDiv.className = `bill-item-row ${isPureReturn ? 'return-item-row' : ''}`;
+            rowDiv.id = rowId;
+
+            rowDiv.innerHTML = `
+                <select class="item-unit" required style="padding:8px; border-radius:6px; border:1px solid #cbd5e1; width:100%;"></select>
+                <input type="text" class="item-name" placeholder="Item Name..." required disabled style="padding:8px; border-radius:6px; border:1px solid #cbd5e1; width:100%;">
+                <input type="number" step="0.01" class="item-qty" placeholder="Qty" value="1" required style="padding:8px; border-radius:6px; border:1px solid #cbd5e1; width:100%;">
+                <input type="number" step="0.01" class="item-rate" placeholder="${isPureReturn ? 'Credit Rate' : 'Sale Rate'}" required style="padding:8px; border-radius:6px; border:1px solid #cbd5e1; width:100%;">
+                ${isPureReturn ? '' : `<input type="number" step="0.01" class="item-stock-badge" placeholder="Stock Avail." readonly style="background:#f1f5f9; color:#475569; padding:8px; border-radius:6px; border:1px solid #cbd5e1; width:100%; font-size:12px; font-weight:700;">`}
+                <button type="button" class="delete-row">&times;</button>
+            `;
+
+            containerNode.appendChild(rowDiv);
+
+            const unitDrop = rowDiv.querySelector('.item-unit');
+            const nameInp = rowDiv.querySelector('.item-name');
+            const qtyInp = rowDiv.querySelector('.item-qty');
+            const rateInp = rowDiv.querySelector('.item-rate');
+            const stockBadge = isPureReturn ? null : rowDiv.querySelector('.item-stock-badge');
+
+            populateUnitDropdownElement(unitDrop);
+
+            const recalculateInputValidationState = () => {
+                const typedStr = nameInp.value.trim().toLowerCase();
+                const selectedUnit = unitDrop.value;
+                let matchFound = false;
+                let targetAvailableStock = 0;
+
+                for (let k in currentLiveStockInventory) {
+                    const sItem = currentLiveStockInventory[k];
+                    if (sItem.unit === selectedUnit && (sItem.itemName || '').toLowerCase() === typedStr) {
+                        matchFound = true;
+                        targetAvailableStock = sItem.quantity || 0;
+                        break;
+                    }
+                }
+
+                if (matchFound) {
+                    nameInp.classList.remove('input-match-failed');
+                    nameInp.classList.add('input-match-success');
+                    if(stockBadge) stockBadge.value = targetAvailableStock + " left";
+                    // Hide modal level validation banners if fixed on the fly
+                    salesValidationBanner.style.display = 'none';
+                    returnValidationBanner.style.display = 'none';
+                } else if (typedStr !== "") {
+                    nameInp.classList.remove('input-match-success');
+                    nameInp.classList.add('input-match-failed');
+                    if(stockBadge) stockBadge.value = "New Item";
+                }
+            };
+
+            unitDrop.addEventListener('change', () => {
+                nameInp.value = ''; rateInp.value = '';
+                if(stockBadge) stockBadge.value = '';
+                nameInp.classList.remove('input-match-success', 'input-match-failed');
+
+                if (unitDrop.value) {
+                    nameInp.disabled = false;
+                    const safeIdString = unitDrop.value.replace(/\s+/g, '_');
+                    nameInp.setAttribute('list', 'datalist_' + safeIdString);
+                } else {
+                    nameInp.disabled = true;
+                    nameInp.removeAttribute('list');
+                }
+                triggerRecalculateCalculations(modeType);
+            });
+
+            nameInp.addEventListener('input', () => {
+                const typedStr = nameInp.value.trim().toLowerCase();
+                const selectedUnit = unitDrop.value;
+                let matchFound = false;
+                let assignedSaleRate = 0;
+
+                for (let k in currentLiveStockInventory) {
+                    const sItem = currentLiveStockInventory[k];
+                    if (sItem.unit === selectedUnit && (sItem.itemName || '').toLowerCase() === typedStr) {
+                        matchFound = true;
+                        assignedSaleRate = sItem.saleRate || 0;
+                        break;
+                    }
+                }
+
+                if (matchFound) {
+                    rateInp.value = assignedSaleRate;
+                }
+                recalculateInputValidationState();
+                triggerRecalculateCalculations(modeType);
+            });
+
+            qtyInp.addEventListener('input', () => triggerRecalculateCalculations(modeType));
+            rateInp.addEventListener('input', () => triggerRecalculateCalculations(modeType));
+
+            rowDiv.querySelector('.delete-row').addEventListener('click', () => {
+                rowDiv.remove();
+                // Check if any error inputs are left after removal
+                const matchingErrors = document.querySelectorAll('.modal-overlay.active .input-match-failed');
+                if (matchingErrors.length === 0) {
+                    salesValidationBanner.style.display = 'none';
+                    returnValidationBanner.style.display = 'none';
+                }
+                triggerRecalculateCalculations(modeType);
+            });
+        }
+
+        function triggerRecalculateCalculations(mode) {
+            if (mode === 'SALES') runSalesCalculationEngine();
+            if (mode === 'RETURN_IN' || mode === 'EXCHANGE_OUT') runReturnExchangeCalculationEngine();
+        }
+
+        function runSalesCalculationEngine() {
+            let sum = 0;
+            const rows = document.querySelectorAll('#salesRowsContainer .bill-item-row');
+            rows.forEach(r => {
+                const q = parseFloat(r.querySelector('.item-qty').value) || 0;
+                const price = parseFloat(r.querySelector('.item-rate').value) || 0;
+                sum += (q * price);
+            });
+            document.getElementById('salesGrandTotalText').innerText = sum.toFixed(2);
+        }
+
+        function runReturnExchangeCalculationEngine() {
+            let totalReturnedValue = 0;
+            let totalIssuedValue = 0;
+
+            const returnRows = document.querySelectorAll('#returnRowsContainer .bill-item-row');
+            returnRows.forEach(r => {
+                const q = parseFloat(r.querySelector('.item-qty').value) || 0;
+                const rate = parseFloat(r.querySelector('.item-rate').value) || 0;
+                totalReturnedValue += (q * rate);
+            });
+
+            const exchangeRows = document.querySelectorAll('#exchangeRowsContainer .bill-item-row');
+            exchangeRows.forEach(r => {
+                const q = parseFloat(r.querySelector('.item-qty').value) || 0;
+                const rate = parseFloat(r.querySelector('.item-rate').value) || 0;
+                totalIssuedValue += (q * rate);
+            });
+
+            const netSettlementValue = totalIssuedValue - totalReturnedValue;
+            
+            document.getElementById('totalReturnedValueText').innerText = totalReturnedValue.toFixed(2);
+            document.getElementById('totalIssuedValueText').innerText = totalIssuedValue.toFixed(2);
+            document.getElementById('netSettlementTotalText').innerText = Math.abs(netSettlementValue).toFixed(2);
+
+            const labelNode = document.getElementById('netBalanceLabelType');
+            const lineWrapper = document.getElementById('netBalanceWrapperLine');
+
+            if (netSettlementValue > 0) {
+                labelNode.innerText = "Net Amount Collectible From Customer:";
+                lineWrapper.style.color = "#166534";
+            } else if (netSettlementValue < 0) {
+                labelNode.innerText = "Net Amount Refundable To Customer:";
+                lineWrapper.style.color = "#ef4444";
+            } else {
+                labelNode.innerText = "Balanced Settlement Exchange:";
+                lineWrapper.style.color = "#475569";
+            }
+        }
+
+        document.getElementById('addSalesItemRowBtn').addEventListener('click', () => addGenericRowItem('SALES', 'salesRowsContainer'));
+        document.getElementById('addReturnItemRowBtn').addEventListener('click', () => addGenericRowItem('RETURN_IN', 'returnRowsContainer'));
+        document.getElementById('addExchangeItemRowBtn').addEventListener('click', () => addGenericRowItem('EXCHANGE_OUT', 'exchangeRowsContainer'));
+
+        document.getElementById('salesForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // EXPLICIT BLOCK IF ANY ELEMENT IS CURRENTLY RED
+            const redFailedItems = document.querySelectorAll('#salesRowsContainer .input-match-failed');
+            if (redFailedItems.length > 0) {
+                salesValidationBanner.style.display = 'flex';
+                salesModalOverlay.scrollTop = 0; // scroll window up to see warning banner
+                redFailedItems[0].focus();
+                return;
+            }
+
+            let billNum = nextBillSequenceStr;
+            const cleanBillKey = "BILL-" + billNum;
+            const cName = document.getElementById('salesCustomerName').value.trim();
+            const bDate = document.getElementById('salesDate').value;
+
+            const finalProductsList = [];
+            const rows = document.querySelectorAll('#salesRowsContainer .bill-item-row');
+            
+            rows.forEach(r => {
+                const unit = r.querySelector('.item-unit').value;
+                const name = r.querySelector('.item-name').value.trim();
+                const qty = parseFloat(r.querySelector('.item-qty').value) || 0;
+                const rate = parseFloat(r.querySelector('.item-rate').value) || 0;
+
+                if (name && qty > 0) {
+                    finalProductsList.push({ unit, description: name, quantity: qty, rate, subTotal: (qty * rate) });
+                }
+            });
+
+            if (finalProductsList.length === 0) {
+                alert("Please add at least one valid product line.");
+                return;
+            }
+
+            try {
+                for (const item of finalProductsList) {
+                    let targetStockKey = null;
+                    const cleanCheckName = item.description.toLowerCase();
+
+                    for (let key in currentLiveStockInventory) {
+                        if (currentLiveStockInventory[key].unit === item.unit && (currentLiveStockInventory[key].itemName || '').toLowerCase() === cleanCheckName) {
+                            targetStockKey = key; break;
+                        }
+                    }
+                    if (!targetStockKey) targetStockKey = item.description.replace(/[\.\#\$\[\]\/]/g, "-");
+
+                    const targetStockRef = ref(database, `my-shop/my-stock/${targetStockKey}`);
+                    await runTransaction(targetStockRef, (curr) => {
+                        if (curr) {
+                            curr.quantity = (parseFloat(curr.quantity) || 0) - item.quantity;
+                        }
+                        return curr;
+                    });
+                }
+
+                await set(ref(database, `my-shop/customer-bills/${cleanBillKey}`), {
+                    billNumber: billNum,
+                    date: bDate,
+                    customerName: cName,
+                    invoiceType: "SALE",
+                    itemsList: finalProductsList,
+                    grandTotal: parseFloat(document.getElementById('salesGrandTotalText').innerText) || 0,
+                    timestamp: Date.now()
+                });
+
+                closeAllModals();
+                alert(`Sales Bill #${billNum} saved successfully!`);
+            } catch (err) {
+                alert("Database error filing invoice: " + err.message);
+            }
+        });
+
+        document.getElementById('returnForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // EXPLICIT BLOCK IF ANY ELEMENT IS CURRENTLY RED
+            const redFailedItems = document.querySelectorAll('#returnForm .input-match-failed');
+            if (redFailedItems.length > 0) {
+                returnValidationBanner.style.display = 'flex';
+                returnModalOverlay.scrollTop = 0; // scroll window up to see warning banner
+                redFailedItems[0].focus();
+                return;
+            }
+
+            let billNum = nextBillSequenceStr;
+            const cleanBillKey = "BILL-" + billNum;
+            const cName = document.getElementById('returnCustomerName').value.trim();
+            const bDate = document.getElementById('returnDate').value;
+
+            const returnedItems = [];
+            const exchangeIssuedItems = [];
+
+            document.querySelectorAll('#returnRowsContainer .bill-item-row').forEach(r => {
+                const unit = r.querySelector('.item-unit').value;
+                const name = r.querySelector('.item-name').value.trim();
+                const qty = parseFloat(r.querySelector('.item-qty').value) || 0;
+                const rate = parseFloat(r.querySelector('.item-rate').value) || 0;
+                if (name && qty > 0) {
+                    returnedItems.push({ unit, description: name, quantity: qty, rate, direction: "RETURNED_IN", subTotal: (qty * rate) });
+                }
+            });
+
+            document.querySelectorAll('#exchangeRowsContainer .bill-item-row').forEach(r => {
+                const unit = r.querySelector('.item-unit').value;
+                const name = r.querySelector('.item-name').value.trim();
+                const qty = parseFloat(r.querySelector('.item-qty').value) || 0;
+                const rate = parseFloat(r.querySelector('.item-rate').value) || 0;
+                if (name && qty > 0) {
+                    exchangeIssuedItems.push({ unit, description: name, quantity: qty, rate, direction: "EXCHANGED_OUT", subTotal: (qty * rate) });
+                }
+            });
+
+            if (returnedItems.length === 0 && exchangeIssuedItems.length === 0) {
+                alert("Please add items to return or exchange section fields.");
+                return;
+            }
+
+            try {
+                for (const item of returnedItems) {
+                    let keyNode = null;
+                    for (let k in currentLiveStockInventory) {
+                        if(currentLiveStockInventory[k].unit === item.unit && (currentLiveStockInventory[k].itemName || '').toLowerCase() === item.description.toLowerCase()) {
+                            keyNode = k; break;
+                        }
+                    }
+                    if(!keyNode) keyNode = item.description.replace(/[\.\#\$\[\]\/]/g, "-");
+
+                    await runTransaction(ref(database, `my-shop/my-stock/${keyNode}`), (curr) => {
+                        if (curr) curr.quantity = (parseFloat(curr.quantity) || 0) + item.quantity;
+                        return curr;
+                    });
+                }
+
+                for (const item of exchangeIssuedItems) {
+                    let keyNode = null;
+                    for (let k in currentLiveStockInventory) {
+                        if(currentLiveStockInventory[k].unit === item.unit && (currentLiveStockInventory[k].itemName || '').toLowerCase() === item.description.toLowerCase()) {
+                            keyNode = k; break;
+                        }
+                    }
+                    if(!keyNode) keyNode = item.description.replace(/[\.\#\$\[\]\/]/g, "-");
+
+                    await runTransaction(ref(database, `my-shop/my-stock/${keyNode}`), (curr) => {
+                        if (curr) curr.quantity = (parseFloat(curr.quantity) || 0) - item.quantity;
+                        return curr;
+                    });
+                }
+
+                const compiledItemsArray = [...returnedItems, ...exchangeIssuedItems];
+                const netFin = parseFloat(document.getElementById('netSettlementTotalText').innerText) || 0;
+
+                await set(ref(database, `my-shop/customer-bills/${cleanBillKey}`), {
+                    billNumber: billNum,
+                    date: bDate,
+                    customerName: cName,
+                    invoiceType: "RETURN_EXCHANGE",
+                    itemsList: compiledItemsArray,
+                    grandTotal: netFin,
+                    timestamp: Date.now()
+                });
+
+                closeAllModals();
+                alert(`Adjustment Return Bill #${billNum} successfully saved inside records.`);
+            } catch (err) {
+                alert("Error handling adjustment transaction rules: " + err.message);
+            }
+        });
+
+
+        // EXPLICIT MODAL ACTION VIEW BUILDER ROUTINES
+        window.openInvoiceDocumentPreviewView = function(firebaseKeyString) {
+            const invoice = localBillsHistoryCache.find(x => x.firebaseKey === firebaseKeyString);
+            if(!invoice) return;
+
+            activeViewBillContext = invoice;
+
+            const isSale = invoice.invoiceType === 'SALE';
+            const badge = document.getElementById('printInvoiceTypeBadge');
+            
+            badge.innerText = isSale ? "Outward Sale Receipt" : "Return & Exchange Adjustment";
+            badge.style.backgroundColor = isSale ? "#e0f2fe" : "#fef3c7";
+            badge.style.color = isSale ? "#0369a1" : "#b45309";
+
+            document.getElementById('printInvoiceNumberLabel').innerText = `Quotation No: #${invoice.billNumber}`;
+            document.getElementById('printCustomerNameLabel').innerText = invoice.customerName || 'Walk-In Client';
+            document.getElementById('printInvoiceDateLabel').innerText = invoice.date || '';
+
+            let tbodyRowsHTML = '';
+            let totalRetVal = 0;
+            let totalIssVal = 0;
+
+            if(invoice.itemsList && Array.isArray(invoice.itemsList)) {
+                invoice.itemsList.forEach((p, idx) => {
+                    let directionTag = "";
+                    if(p.direction) {
+                        if(p.direction === "RETURNED_IN") {
+                            directionTag = `<span style="color:#ef4444; font-weight:700;">[↩ Return]</span> `;
+                            totalRetVal += parseFloat(p.subTotal || (p.quantity * p.rate));
+                        } else {
+                            directionTag = `<span style="color:#22c55e; font-weight:700;">[🚀 Exchange]</span> `;
+                            totalIssVal += parseFloat(p.subTotal || (p.quantity * p.rate));
+                        }
+                    }
+
+                    tbodyRowsHTML += `
+                        <tr>
+                            <td>${directionTag}${p.description || ''}</td>
+                            <td>${p.unit || ''}</td>
+                            <td style="text-align:center; font-weight:700;">${p.quantity || 0}</td>
+                            <td style="text-align:right;">₹${parseFloat(p.rate || 0).toFixed(2)}</td>
+                            <td style="text-align:right; font-weight:700;">₹${parseFloat(p.subTotal || (p.quantity * p.rate)).toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            document.getElementById('printInvoiceTableBodyRows').innerHTML = tbodyRowsHTML;
+
+            const summaryLabel = document.getElementById('printFinalSummaryLabelType');
+            const summaryAmt = document.getElementById('printFinalSummaryAmountText');
+
+            if(isSale) {
+                document.getElementById('printReturnedWorthRowWrapper').style.display = "none";
+                document.getElementById('printIssuedWorthRowWrapper').style.display = "none";
+                summaryLabel.innerText = "Grand Receivable Total:";
+                summaryAmt.style.color = "#166534";
+                summaryAmt.innerText = `₹${parseFloat(invoice.grandTotal || 0).toFixed(2)}`;
+            } else {
+                document.getElementById('printReturnedWorthRowWrapper').style.display = "flex";
+                document.getElementById('printIssuedWorthRowWrapper').style.display = "flex";
+                document.getElementById('printReturnedWorthLabel').innerText = `₹${totalRetVal.toFixed(2)}`;
+                document.getElementById('printIssuedWorthLabel').innerText = `₹${totalIssVal.toFixed(2)}`;
+
+                const netDiff = totalIssVal - totalRetVal;
+                if(netDiff > 0) {
+                    summaryLabel.innerText = "Net Amount Collectible:";
+                    summaryAmt.style.color = "#166534";
+                } else if(netDiff < 0) {
+                    summaryLabel.innerText = "Net Amount Refundable:";
+                    summaryAmt.style.color = "#ef4444";
+                } else {
+                    summaryLabel.innerText = "Balanced Settlement Total:";
+                    summaryAmt.style.color = "#475569";
+                }
+                summaryAmt.innerText = `₹${parseFloat(invoice.grandTotal || 0).toFixed(2)}`;
+            }
+
+            viewInvoiceModalOverlay.classList.add('active');
+        };
+
+        // DOWNLOAD VISUAL INTERFACE AS JPG FILE VIA CANVAS PARSING
+        document.getElementById('modalActionJpgTrigger').addEventListener('click', () => {
+            const frameTarget = document.getElementById('capturedInvoiceElementFrame');
+            if(!frameTarget || !activeViewBillContext) return;
+
+            html2canvas(frameTarget, {
+                scale: 2, 
+                backgroundColor: "#ffffff",
+                useCORS: true
+            }).then(canvas => {
+                const imageBase64Data = canvas.toDataURL("image/jpeg", 0.9);
+                const fileDownloadLink = document.createElement('a');
+                const clientNameSanitized = (activeViewBillContext.customerName || 'Customer').replace(/[^a-zA-Z0-9]/g, '_');
+                fileDownloadLink.download = `Invoice_${activeViewBillContext.billNumber}_${clientNameSanitized}.jpg`;
+                fileDownloadLink.href = imageBase64Data;
+                document.body.appendChild(fileDownloadLink);
+                fileDownloadLink.click();
+                document.body.removeChild(fileDownloadLink);
+            }).catch(e => {
+                alert("Error compilation routing during JPG extraction: " + e.message);
+            });
+        });
+
+        // MODAL NATIVE OS WINDOW PRINT POPUP TRIGGER HOOK
+        document.getElementById('modalActionPrintTrigger').addEventListener('click', () => {
+            window.print();
+        });
+
+        // CENTRAL GENERATION SYSTEM FOR COMPILING A CLEAN INVOICE SUMMARY TEXT FOR WEB SHARING
+        window.executeWebShareRoutine = async function(firebaseKeyString) {
+            const invoice = localBillsHistoryCache.find(x => x.firebaseKey === firebaseKeyString);
+            if(!invoice) return;
+
+            const isSale = invoice.invoiceType === 'SALE';
+            let summaryText = `📄 *INVOICE STATEMENT*\n`;
+            summaryText += `----------------------------\n`;
+            summaryText += `*Invoice No:* #${invoice.billNumber}\n`;
+            summaryText += `*Type:* ${isSale ? 'Outward Sale' : 'Return & Exchange'}\n`;
+            summaryText += `*Customer:* ${invoice.customerName}\n`;
+            summaryText += `*Date:* ${invoice.date}\n`;
+            summaryText += `----------------------------\n`;
+            summaryText += `*Items Summary:*\n`;
+
+            if(invoice.itemsList && Array.isArray(invoice.itemsList)) {
+                invoice.itemsList.forEach(item => {
+                    let prefix = "";
+                    if (item.direction === "RETURNED_IN") prefix = "[↩ Return] ";
+                    if (item.direction === "EXCHANGED_OUT") prefix = "[🚀 Exch] ";
+                    summaryText += `• ${prefix}${item.description} (${item.quantity} ${item.unit}) @ ₹${item.rate}\n`;
+                });
+            }
+            summaryText += `----------------------------\n`;
+            summaryText += `*Grand Total Balance: ₹${parseFloat(invoice.grandTotal || 0).toFixed(2)}*\n\n`;
+            summaryText += `Thank you for your business!`;
+
+            // Native device framework checking via Web Share API
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: `Invoice #${invoice.billNumber}`,
+                        text: summaryText
+                    });
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        alert("Sharing failed: " + err.message);
+                    }
+                }
+            } else {
+                // Clipboard fallback routing for desktop systems
+                try {
+                    await navigator.clipboard.writeText(summaryText);
+                    alert(`📋 System sharing menu is not supported on this browser.\n\nInvoice text summary for #${invoice.billNumber} has been successfully copied to your clipboard! You can paste it directly into WhatsApp or SMS manually.`);
+                } catch (clipboardErr) {
+                    alert("Unable to open device distribution channels: " + clipboardErr.message);
+                }
+            }
+        };
+
+        // Attach event listener to share trigger inside modal popups 
+        document.getElementById('modalActionShareTrigger').addEventListener('click', () => {
+            if(activeViewBillContext && activeViewBillContext.firebaseKey) {
+                executeWebShareRoutine(activeViewBillContext.firebaseKey);
+            }
+        });
+
+        window.triggerDirectCardPrintJob = function(firebaseKeyString) {
+            openInvoiceDocumentPreviewView(firebaseKeyString);
+            setTimeout(() => {
+                window.print();
+            }, 300);
+        };
+
+
+        // LEDGER GRID RENDERING ENGINE WITH ACTIVE FILTER HOOKS
+        function renderCustomerBillsGrid() {
+            historyContainerWrapper.innerHTML = '';
+            
+            const searchKeyword = customerBillSearch.value.trim().toLowerCase();
+            const selectedMonth = filterMonth.value; 
+            const selectedYear = filterYear.value;   
+
+            let targetSourceRecordsList = localBillsHistoryCache.filter(invoice => {
+                const matchesText = (invoice.customerName || '').toLowerCase().includes(searchKeyword) ||
+                                    (invoice.billNumber || '').toLowerCase().includes(searchKeyword);
+                
+                const invoiceDateStr = invoice.date || ''; 
+                const dateParts = invoiceDateStr.split('-'); 
+                
+                const matchesMonth = selectedMonth === '' ? true : (dateParts[1] === selectedMonth);
+                const matchesYear = selectedYear === '' ? true : (dateParts[0] === selectedYear);
+
+                return matchesText && matchesMonth && matchesYear;
+            });
+
+            billCountDisplay.innerText = targetSourceRecordsList.length;
+
+            if (targetSourceRecordsList.length === 0) {
+                historyContainerWrapper.innerHTML = `<div class="no-data-card">No custom invoice matches found matching your filters.</div>`;
+                return;
+            }
+
+            targetSourceRecordsList.forEach(invoice => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'bill-archive-card';
+
+                const isSale = invoice.invoiceType === 'SALE';
+                const typeLabel = isSale ? 'Direct Outward Sale' : 'Return & Exchange Adjustment';
+                const classLabel = isSale ? 'badge-sale' : 'badge-return';
+
+                cardDiv.innerHTML = `
+                    <div class="bill-card-header" style="border-bottom:none; margin-bottom:0; padding-bottom:0;">
+                        <div>
+                            <h3 style="font-size:18px; font-weight:700;">Bill Reference: #${invoice.billNumber}</h3>
+                            <p style="font-size:13px; color:#64748b; margin-top:4px;">👤 Client: <strong>${invoice.customerName}</strong> | 📅 Date: ${invoice.date}</p>
+                        </div>
+                        <div>
+                            <span class="type-badge ${classLabel}">${typeLabel}</span>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="font-size:11px; text-transform:uppercase; color:#64748b; display:block;">Invoice Net Amount</span>
+                            <strong style="font-size:18px; color:${isSale ? '#166534' : '#b45309'}">₹ ${parseFloat(invoice.grandTotal || 0).toFixed(2)}</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="card-actions-row">
+                        <button type="button" class="action-card-btn btn-view" onclick="openInvoiceDocumentPreviewView('${invoice.firebaseKey}')">👁️ View Bill</button>
+                        <button type="button" class="action-card-btn btn-print" onclick="triggerDirectCardPrintJob('${invoice.firebaseKey}')">🖨️ Print</button>
+                        <button type="button" class="action-card-btn btn-share" onclick="executeWebShareRoutine('${invoice.firebaseKey}')">🔗 Share Bill</button>
+                    </div>
+                `;
+                historyContainerWrapper.appendChild(cardDiv);
+            });
+        }
+
+        customerBillSearch.addEventListener('input', renderCustomerBillsGrid);
+        filterMonth.addEventListener('change', renderCustomerBillsGrid);
+        filterYear.addEventListener('change', renderCustomerBillsGrid);
+
+        onValue(customerBillsRef, (snapshot) => {
+            const dataMap = snapshot.val();
+            let largestFoundSequenceInt = 0;
+            localBillsHistoryCache = [];
+
+            if (!dataMap || Object.keys(dataMap).length === 0) {
+                historyContainerWrapper.innerHTML = `<div class="no-data-card">No customer billing ledger transaction logs saved yet.</div>`;
+                billCountDisplay.innerText = "0";
+                nextBillSequenceStr = "01";
+                setGeneratedInvoiceIds(nextBillSequenceStr);
+                return;
+            }
+
+            for (let customIdKey in dataMap) {
+                const doc = dataMap[customIdKey];
+                const cleanIdString = doc.billNumber || customIdKey;
+                const parsedInt = parseInt(cleanIdString, 10);
+                
+                if (!isNaN(parsedInt) && parsedInt > largestFoundSequenceInt) {
+                    largestFoundSequenceInt = parsedInt;
+                }
+
+                localBillsHistoryCache.push({
+                    firebaseKey: customIdKey,
+                    billNumber: cleanIdString,
+                    customerName: doc.customerName || 'Walk-in Customer',
+                    date: doc.date || '',
+                    invoiceType: doc.invoiceType || 'SALE',
+                    itemsList: doc.itemsList || [],
+                    grandTotal: doc.grandTotal || 0,
+                    timestamp: doc.timestamp || parsedInt || 0
+                });
+            }
+
+            localBillsHistoryCache.sort((a, b) => b.timestamp - a.timestamp);
+            renderCustomerBillsGrid();
+
+            let computedNextSequence = largestFoundSequenceInt + 1;
+            nextBillSequenceStr = computedNextSequence < 10 ? "0" + computedNextSequence : "" + computedNextSequence;
+            setGeneratedInvoiceIds(nextBillSequenceStr);
+        });
+    </script>
+</body>
+</html>

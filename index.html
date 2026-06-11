@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Shop Data</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=500;600;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc; /* Crisp light background */
+            color: #0f172a;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        /* Top Title Header */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #0f172a;
+        }
+
+        /* Active User Badge Profile status */
+        .profile-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #e2e8f0;
+            padding: 6px 14px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .profile-badge:hover {
+            background: #cbd5e1;
+            color: #0f172a;
+        }
+
+        /* Clean Main Button Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            width: 100%;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        /* Modern Light Mode Buttons */
+        .dash-btn {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-decoration: none;
+            color: #334155;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Universal SVG sizing */
+        .dash-btn svg {
+            width: 32px;
+            height: 32px;
+            transition: transform 0.25s ease;
+        }
+
+        /* Hover States - Sophisticated colorful borders and text shifts */
+        .dash-btn:hover {
+            transform: translateY(-5px);
+            background: #ffffff;
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .stock-btn:hover { border-color: #0284c7; color: #0284c7; }
+        .bill-btn:hover { border-color: #16a34a; color: #16a34a; }
+
+        .dash-btn:hover svg {
+            transform: scale(1.1);
+        }
+
+        /* Footer Layout */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* ================= AUTH MODAL OVERLAY STYLES ================= */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0f172abf; /* Deep dark frosted glass blur backup */
+            backdrop-filter: blur(12px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        /* Hidden class helper */
+        .auth-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .auth-card {
+            background: #ffffff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 420px;
+            padding: 40px 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            text-align: center;
+        }
+
+        .auth-card h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .auth-card p {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 28px;
+        }
+
+        .auth-form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .auth-form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        /* Forces everything input to visibly display as UPPERCASE instantly */
+        .auth-form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+            color: #0f172a;
+            text-transform: uppercase;
+            transition: border-color 0.2s;
+        }
+
+        .auth-form-group input:focus {
+            border-color: #0284c7;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        .auth-btn-submit {
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            width: 100%;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 10px;
+        }
+
+        .auth-btn-submit:hover { background-color: #0369a1; }
+        .auth-btn-submit:active { transform: scale(0.98); }
+
+        .auth-error-msg {
+            color: #dc2626;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 12px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="authOverlay" class="auth-overlay">
+        <div class="auth-card">
+            <h2>Worker Gate Lock</h2>
+            <p>Please log in using your shop credentials to access terminal files.</p>
+            
+            <form id="authForm">
+                <div class="auth-form-group">
+                    <label for="loginWorkerId">Worker ID</label>
+                    <input type="text" id="loginWorkerId" placeholder="ENTER 4-CHAR ID (E.G., W102)" maxlength="4" required autocomplete="off">
+                </div>
+                
+                <div class="auth-form-group">
+                    <label for="loginWorkerPassword">4-Digit Security Pin</label>
+                    <input type="password" id="loginWorkerPassword" placeholder="••••" inputmode="numeric" maxlength="4" required>
+                </div>
+
+                <div id="authError" class="auth-error-msg">Invalid ID or Pin Number. Access Denied.</div>
+                
+                <button type="submit" class="auth-btn-submit">Verify & Open Terminal</button>
+            </form>
+        </div>
+    </div>
+
+    <header>
+        <h1>My Shop Data</h1>
+        <div id="activeUserBadge" class="profile-badge" style="display: none;">
+            👤 Worker: <span id="activeWorkerName">Loading...</span> (Logout)
+        </div>
+    </header>
+
+    <div class="dashboard-grid">
+        <a href="stock.html" class="dash-btn stock-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            Stock
+        </a>
+
+        <a href="bill.html" class="dash-btn bill-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="12" y1="4" x2="12" y2="20"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg>
+            Bill
+        </a>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 My Shop Data Control Panel. All Rights Reserved.</p>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, off, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+
+        // Updated Configuration Object
+        const firebaseConfig = {
+            apiKey: "AIzaSyDTDU7X7B3B0a_PfUCAei4KKNG6iD3spAg",
+            authDomain: "my-stock-6f9f4.firebaseapp.com",
+            databaseURL: "https://my-stock-6f9f4-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "my-stock-6f9f4",
+            storageBucket: "my-stock-6f9f4.firebasestorage.app",
+            messagingSenderId: "440761091064",
+            appId: "1:440761091064:web:1b1ba3ed2385fe45e00c0d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        const authOverlay = document.getElementById('authOverlay');
+        const authForm = document.getElementById('authForm');
+        const authError = document.getElementById('authError');
+        const activeUserBadge = document.getElementById('activeUserBadge');
+        const activeWorkerName = document.getElementById('activeWorkerName');
+        const idInput = document.getElementById('loginWorkerId');
+        const passwordInput = document.getElementById('loginWorkerPassword');
+
+        let liveWorkerListenerRef = null;
+
+        // Automatically convert any text typed inside Worker ID input field to uppercase
+        idInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+        });
+
+        // Force input numeric filter configurations safely and handle uppercase text layout conversions
+        passwordInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '').toUpperCase();
+        });
+
+        // Main setup listener to maintain active session check logic and kick out tracking
+        function linkLiveWorkerSessionListener(workerId, storedPassword) {
+            // Unsubscribe existing listeners if any
+            if (liveWorkerListenerRef) {
+                off(liveWorkerListenerRef);
+            }
+
+            const targetPath = ref(database, 'my-shop/workers/' + workerId.toUpperCase());
+            liveWorkerListenerRef = targetPath;
+
+            // REAL-TIME LISTENER: Triggers instantly if data gets modified or deleted in Firebase Console
+            onValue(targetPath, (snapshot) => {
+                const data = snapshot.val();
+
+                // 1. CRITICAL HOT-KICK CHECK: If entry doesn't exist (DELETED from database)
+                if (!snapshot.exists() || !data) {
+                    executeSessionTerminationTrigger("Your account profile was removed or deleted from the main registry database.");
+                    return;
+                }
+
+                // 2. CHECK PASSWORD CORRUPTION/CHANGES: If database password doesn't match local session
+                if (String(data.workerPassword) !== String(storedPassword)) {
+                    executeSessionTerminationTrigger("Security credentials modified. Please log in again.");
+                    return;
+                }
+
+                // If completely valid, reveal UI controls gracefully
+                authOverlay.classList.add('hidden');
+                activeWorkerName.innerText = (data.workerName || workerId).toUpperCase();
+                activeUserBadge.style.display = 'inline-flex';
+            }, (error) => {
+                console.error("Firebase security rule violation or interruption: ", error);
+                executeSessionTerminationTrigger("Connection timed out or lost access permissions.");
+            });
+        }
+
+        // Forceful UI closure and credential clearance function
+        function executeSessionTerminationTrigger(alertMessage) {
+            if (alertMessage) alert(`🚨 Terminated: ${alertMessage}`);
+            
+            // Clean browser session caches
+            localStorage.removeItem('activeTerminalWorkerId');
+            localStorage.removeItem('activeTerminalWorkerPin');
+
+            if (liveWorkerListenerRef) {
+                off(liveWorkerListenerRef);
+                liveWorkerListenerRef = null;
+            }
+
+            // Lock UI Layout elements immediately
+            activeUserBadge.style.display = 'none';
+            authOverlay.classList.remove('hidden');
+            authForm.reset();
+        }
+
+        // Check if session data persists inside browser from standard refresh routines
+        window.addEventListener('DOMContentLoaded', () => {
+            const cachedId = localStorage.getItem('activeTerminalWorkerId');
+            const cachedPin = localStorage.getItem('activeTerminalWorkerPin');
+
+            if (cachedId && cachedPin) {
+                // Instantly attach live check tracking pipeline loop
+                linkLiveWorkerSessionListener(cachedId.toUpperCase(), cachedPin);
+            } else {
+                // No session found, leave screen locked
+                authOverlay.classList.remove('hidden');
+            }
+        });
+
+        // Submit form handler verification logic routine
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            authError.style.display = 'none';
+
+            const inputId = idInput.value.trim().toUpperCase();
+            const inputPin = passwordInput.value.trim();
+
+            if (inputId.length !== 4 || inputPin.length !== 4) {
+                authError.innerText = "Entries must be exactly 4 characters long.";
+                authError.style.display = 'block';
+                return;
+            }
+
+            try {
+                // One-time fast pull request snapshot to confirm credentials initially
+                const checkRef = ref(database, 'my-shop/workers/' + inputId);
+                const snapshot = await get(checkRef);
+
+                if (snapshot.exists()) {
+                    const workerData = snapshot.val();
+                    
+                    if (String(workerData.workerPassword) === String(inputPin)) {
+                        // Success matching! Save session pointers safely to localStorage
+                        localStorage.setItem('activeTerminalWorkerId', inputId);
+                        localStorage.setItem('activeTerminalWorkerPin', inputPin);
+
+                        // Attach live listener for instantaneous hot-revocation and kick outs
+                        linkLiveWorkerSessionListener(inputId, inputPin);
+                    } else {
+                        // Password mismatch fallback
+                        authError.innerText = "Incorrect security PIN value entered.";
+                        authError.style.display = 'block';
+                    }
+                } else {
+                    // ID missing fallback
+                    authError.innerText = "Worker ID record could not be found.";
+                    authError.style.display = 'block';
+                }
+            } catch (err) {
+                console.error("Login authorization request transactional fault: ", err);
+                authError.innerText = "Connection error: Failed to reach server nodes.";
+                authError.style.display = 'block';
+            }
+        });
+
+        // Click on user badge to manually sign out clear tokens loop safely
+        activeUserBadge.addEventListener('click', () => {
+            if (confirm("Are you sure you want to lock the system terminal and sign out?")) {
+                executeSessionTerminationTrigger(null);
+            }
+        });
+    </script>
+</body>
+</html>
