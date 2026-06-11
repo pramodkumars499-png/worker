@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Billing Operations - My Shop Data</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700&display=swap');
@@ -12,12 +12,13 @@
             margin: 0;
             padding: 0;
             font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             background-color: #f8fafc;
             color: #0f172a;
-            padding: 40px 20px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -31,9 +32,10 @@
 
         .header-nav {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 24px;
         }
 
         .back-btn {
@@ -49,24 +51,31 @@
         .back-btn:hover { color: #0284c7; }
 
         h1 {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
         }
 
         /* ACTIONS PANEL BAR */
         .action-button-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: 1fr;
+            gap: 12px;
             margin-bottom: 32px;
             width: 100%;
         }
 
+        @media (min-width: 640px) {
+            .action-button-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+        }
+
         .op-btn {
             border: none;
-            padding: 18px 24px;
-            border-radius: 16px;
-            font-size: 16px;
+            padding: 16px 20px;
+            border-radius: 14px;
+            font-size: 15px;
             font-weight: 700;
             cursor: pointer;
             display: flex;
@@ -102,6 +111,7 @@
             gap: 16px;
             border-top: 1px solid #e2e8f0;
             padding-top: 24px;
+            width: 100%;
         }
 
         .section-title {
@@ -125,6 +135,10 @@
             align-items: center;
             gap: 12px;
             flex-wrap: wrap;
+            width: 100%;
+        }
+        @media (min-width: 768px) {
+            .search-wrapper { width: auto; }
         }
         .search-wrapper input {
             padding: 10px 16px;
@@ -133,8 +147,11 @@
             font-size: 14px;
             color: #0f172a;
             outline: none;
-            min-width: 250px;
+            flex-grow: 1;
             transition: border-color 0.2s;
+        }
+        @media (min-width: 768px) {
+            .search-wrapper input { min-width: 250px; flex-grow: 0; }
         }
         .search-wrapper input:focus { border-color: #0284c7; }
 
@@ -149,6 +166,10 @@
             cursor: pointer;
             font-weight: 500;
             transition: border-color 0.2s;
+            flex-grow: 1;
+        }
+        @media (min-width: 768px) {
+            .filter-select { flex-grow: 0; }
         }
         .filter-select:focus { border-color: #0284c7; }
 
@@ -156,7 +177,7 @@
         #historyContainerWrapper {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
             width: 100%;
         }
 
@@ -164,22 +185,28 @@
             background: white;
             border: 1px solid #e2e8f0;
             border-radius: 16px;
-            padding: 24px;
+            padding: 16px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        @media (min-width: 640px) {
+            .bill-archive-card { padding: 24px; }
         }
 
         .bill-card-header {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 1px dashed #e2e8f0;
-            padding-bottom: 16px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 12px;
+        }
+        @media (min-width: 640px) {
+            .bill-card-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: flex-start;
+            }
         }
 
         .type-badge {
+            display: inline-block;
             font-size: 12px;
             font-weight: 700;
             padding: 4px 10px;
@@ -197,6 +224,7 @@
             justify-content: flex-end;
             border-top: 1px solid #f1f5f9;
             padding-top: 14px;
+            flex-wrap: wrap;
         }
         .action-card-btn {
             border: none;
@@ -237,13 +265,17 @@
             display: flex; justify-content: center; align-items: center;
             z-index: 999; opacity: 0; pointer-events: none;
             transition: opacity 0.2s ease;
+            padding: 12px;
         }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
         .modal-box {
-            background: white; padding: 32px; border-radius: 16px;
-            width: 100%; max-width: 1000px; max-height: 85vh;
+            background: white; padding: 16px; border-radius: 16px;
+            width: 100%; max-width: 1000px; max-height: 90vh;
             overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        @media (min-width: 640px) {
+            .modal-box { padding: 32px; }
         }
 
         .modal-header {
@@ -275,14 +307,14 @@
             padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;
         }
 
-        /* Parallel Layout: Columns line up directly next to each other cleanly */
+        /* Parallel Row Configuration for Desktop Layout */
         .bill-item-row {
             display: grid; 
-            grid-template-columns: 1.2fr 2fr 0.8fr 1fr 1fr auto;
-            gap: 12px; 
+            grid-template-columns: 1fr 1.5fr 0.7fr 1fr 1fr auto;
+            gap: 10px; 
             align-items: center; 
             background-color: #f8fafc;
-            padding: 12px; 
+            padding: 10px; 
             border-radius: 8px; 
             border: 1px solid #e2e8f0; 
             margin-bottom: 10px;
@@ -290,7 +322,35 @@
         }
 
         .return-item-row {
-            grid-template-columns: 1.2fr 2.5fr 1fr 1.5fr auto !important;
+            grid-template-columns: 1fr 1.8fr 0.8fr 1.2fr auto;
+        }
+
+        /* RESPONSIVE MOBILE ITEMS LAYOUT BAR OVERRIDES */
+        @media (max-width: 768px) {
+            .bill-item-row, .return-item-row {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 10px;
+                padding: 12px;
+            }
+            .bill-item-row > *, .return-item-row > * {
+                grid-column: span 1 !important;
+            }
+            .bill-item-row .item-unit, .return-item-row .item-unit {
+                grid-column: span 2 !important;
+            }
+            .bill-item-row .item-name, .return-item-row .item-name {
+                grid-column: span 2 !important;
+            }
+            .delete-row {
+                grid-column: span 2 !important;
+                justify-content: center;
+                padding: 6px;
+                background-color: #fef2f2;
+                border-radius: 6px;
+                border: 1px solid #fee2e2;
+                font-size: 14px !important;
+                margin-top: 4px;
+            }
         }
 
         .input-match-success { border: 2px solid #22c55e !important; background-color: #f0fdf4 !important; }
@@ -326,9 +386,27 @@
         .final-action-submit.orange-btn { background-color: #f59e0b; }
 
         /* PRINTING & DISPLAY INVOICE PREVIEW CARD STYLES */
-        .invoice-print-card {
-            background: white; padding: 40px; border-radius: 0; color: #000; width: 100%; max-width: 800px; margin: 0 auto;
+        /* Scroll container for mobile viewboards to keep invoice structured */
+        .invoice-scroll-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 4px;
+            border-radius: 8px;
+            background-color: #fff;
         }
+
+        .invoice-print-card {
+            background: white; 
+            padding: 40px; 
+            border-radius: 0; 
+            color: #000; 
+            width: 100%; 
+            min-width: 750px; /* Prevents text squeezing/overlapping on small frames */
+            max-width: 800px; 
+            margin: 0 auto;
+        }
+        
         .invoice-print-table {
             width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px;
         }
@@ -337,6 +415,45 @@
         }
         .invoice-print-table td {
             padding: 12px 10px; border: 1px solid #cbd5e1; font-size: 14px; color: #0f172a;
+        }
+
+        /* CUSTOM MODAL TOP BUTTONS LAYOUT REWRITE FOR SMALL VIZ PHONES */
+        .modal-action-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #404446;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .modal-buttons-cluster {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 640px) {
+            .modal-action-header-row {
+                flex-direction: column-reverse;
+                align-items: stretch;
+            }
+            .modal-buttons-cluster {
+                justify-content: flex-start;
+                width: 100%;
+            }
+            .modal-buttons-cluster .action-card-btn {
+                flex-grow: 1;
+                justify-content: center;
+                padding: 10px;
+            }
+            .close-modal-btn {
+                align-self: flex-end;
+                margin-top: -10px;
+            }
         }
 
         /* CSS PRINT STYLES - Targets only the specific printable container */
@@ -507,18 +624,17 @@
 
 
     <div class="modal-overlay" id="viewInvoiceModalOverlay">
-        <div class="modal-box" style="max-width: 880px; background-color: #525659; padding: 20px;">
-            <div class="modal-header" style="border-bottom: 1px solid #404446; margin-bottom: 15px; padding-bottom: 10px;">
-                <h3 style="color: white;">Invoice Document Viewer</h3>
-                <div style="display:flex; gap:12px; align-items:center;">
+        <div class="modal-box" style="max-width: 880px; background-color: #525659; padding: 16px;">
+            <div class="modal-action-header-row">
+                <div class="modal-buttons-cluster">
                     <button type="button" class="action-card-btn btn-print" id="modalActionPrintTrigger">🖨️ Direct Print</button>
                     <button type="button" class="action-card-btn btn-view" id="modalActionJpgTrigger" style="background-color:#0284c7; color:white;">🖼️ Save As JPG</button>
                     <button type="button" class="action-card-btn btn-share" id="modalActionShareTrigger">🔗 Share Bill Image</button>
-                    <button class="close-modal-btn" onclick="closeAllModals()" style="color:#d1d5db;">&times;</button>
                 </div>
+                <button class="close-modal-btn" onclick="closeAllModals()" style="color:#d1d5db;">&times;</button>
             </div>
             
-            <div style="overflow-x: auto; padding: 10px 0;">
+            <div class="invoice-scroll-wrapper">
                 <div id="printableInvoiceAreaContainer">
                     <div class="invoice-print-card" id="capturedInvoiceElementFrame">
                         <div style="display:flex; justify-content:space-between; border-bottom:2px dashed #0f172a; padding-bottom:20px; margin-bottom:20px;">
@@ -557,15 +673,15 @@
                         </table>
 
                         <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px; margin-top:20px; border-top:1px dashed #cbd5e1; padding-top:14px;">
-                            <div style="display:flex; width:300px; justify-content:between; font-size:14px;" id="printReturnedWorthRowWrapper">
+                            <div style="display:flex; width:300px; justify-content:space-between; font-size:14px;" id="printReturnedWorthRowWrapper">
                                 <span style="color:#ef4444; font-weight:600; width:60%;">Returned Worth:</span>
                                 <span style="width:40%; text-align:right; font-weight:700;" id="printReturnedWorthLabel">₹0.00</span>
                             </div>
-                            <div style="display:flex; width:300px; justify-content:between; font-size:14px;" id="printIssuedWorthRowWrapper">
+                            <div style="display:flex; width:300px; justify-content:space-between; font-size:14px;" id="printIssuedWorthRowWrapper">
                                 <span style="color:#22c55e; font-weight:600; width:60%;">New Issued Worth:</span>
                                 <span style="width:40%; text-align:right; font-weight:700;" id="printIssuedWorthLabel">₹0.00</span>
                             </div>
-                            <div style="display:flex; width:300px; justify-content:between; font-size:16px; margin-top:6px; background-color:#f8fafc; padding:8px; border-radius:6px;">
+                            <div style="display:flex; width:300px; justify-content:space-between; font-size:16px; margin-top:6px; background-color:#f8fafc; padding:8px; border-radius:6px;">
                                 <span style="font-weight:700; color:#0f172a; width:60%;" id="printFinalSummaryLabelType">Grand Total:</span>
                                 <span style="width:40%; text-align:right; font-weight:800; color:#0f172a;" id="printFinalSummaryAmountText">₹0.00</span>
                             </div>
@@ -734,7 +850,7 @@
                 <input type="number" step="0.01" class="item-qty" placeholder="Qty" value="1" required style="padding:8px; border-radius:6px; border:1px solid #cbd5e1; width:100%;">
                 <input type="number" step="0.01" class="item-rate" placeholder="${isPureReturn ? 'Credit Rate' : 'Sale Rate'}" required style="padding:8px; border-radius:6px; border:1px solid #cbd5e1; width:100%;">
                 ${isPureReturn ? '' : `<input type="text" class="item-stock-badge" placeholder="Stock Avail." readonly style="background:#f1f5f9; color:#475569; padding:8px; border-radius:6px; border:1px solid #cbd5e1; width:100%; font-size:12px; font-weight:700;">`}
-                <button type="button" class="delete-row">&times;</button>
+                <button type="button" class="delete-row">&times; Delete Row</button>
             `;
 
             containerNode.appendChild(rowDiv);
@@ -1294,10 +1410,10 @@
                             <h3 style="font-size:18px; font-weight:700;">Bill Reference: #${invoice.billNumber}</h3>
                             <p style="font-size:13px; color:#64748b; margin-top:4px;">👤 Client: <strong>${invoice.customerName}</strong> | 📅 Date: ${invoice.date}</p>
                         </div>
-                        <div>
+                        <div style="margin-top: 4px;">
                             <span class="type-badge ${classLabel}">${typeLabel}</span>
                         </div>
-                        <div style="text-align:right;">
+                        <div style="text-align:left; min-width: 120px; margin-top: 8px;">
                             <span style="font-size:11px; text-transform:uppercase; color:#64748b; display:block;">Invoice Net Amount</span>
                             <strong style="font-size:18px; color:${isSale ? '#166534' : '#b45309'}">₹ ${parseFloat(invoice.grandTotal || 0).toFixed(2)}</strong>
                         </div>
@@ -1344,7 +1460,7 @@
                     billNumber: cleanIdString,
                     customerName: doc.customerName || 'Walk-in Customer',
                     date: doc.date || '',
-                    invoiceType: doc.invoiceType || 'SALE',
+                    invoiceType: "RETURN_EXCHANGE",
                     itemsList: doc.itemsList || [],
                     grandTotal: doc.grandTotal || 0,
                     timestamp: doc.timestamp || parsedInt || 0
