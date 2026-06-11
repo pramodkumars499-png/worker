@@ -62,27 +62,6 @@
             width: 100%;
         }
 
-        .add-stock-trigger {
-            background-color: #0284c7;
-            color: white;
-            border: none;
-            padding: 14px 24px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.2);
-            transition: background-color 0.2s, transform 0.1s;
-            width: 100%;
-        }
-
-        .add-stock-trigger:hover { background-color: #0369a1; }
-        .add-stock-trigger:active { transform: scale(0.98); }
-
         .search-bar {
             width: 100%;
             padding: 14px 16px;
@@ -162,26 +141,6 @@
             padding: 30px;
             font-style: italic;
             font-size: 14px;
-        }
-
-        /* Action Edit Button Styles */
-        .edit-row-btn {
-            background-color: #f1f5f9;
-            color: #0284c7;
-            border: 1px solid #cbd5e1;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .edit-row-btn:hover {
-            background-color: #e0f2fe;
-            border-color: #0284c7;
         }
 
         /* Pop-up Overlay (Modal) */
@@ -311,12 +270,7 @@
         </div>
 
         <div class="controls-wrapper">
-            <button class="add-stock-trigger" id="openModalBtn">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                Add Stock
-            </button>
-
-            <input type="text" class="search-bar" id="searchBar" placeholder="Search across all stock categories...">
+            <input type="text" class="search-bar" id="searchBar" placeholder="Search stock... (Press '+' key anywhere to add new stock)">
         </div>
 
         <div id="dynamicTablesContainer"></div>
@@ -331,8 +285,6 @@
             </div>
             
             <form id="stockForm">
-                <input type="hidden" id="editingItemKey" value="">
-
                 <div class="form-group">
                     <label for="itemName">Item Name</label>
                     <input type="text" id="itemName" placeholder="e.g. net bold 10 mm" required>
@@ -355,15 +307,9 @@
                     <input type="text" id="customUnitName" placeholder="e.g. Boxes, Bags, Roll, Packets">
                 </div>
 
-                <div class="row-inputs">
-                    <div class="form-group">
-                        <label for="purchaseRate">Purchase Rate</label>
-                        <input type="number" step="0.01" id="purchaseRate" placeholder="0.00" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="saleRate">Sale Rate</label>
-                        <input type="number" step="0.01" id="saleRate" placeholder="0.00" required>
-                    </div>
+                <div class="form-group">
+                    <label for="saleRate">Sale Rate</label>
+                    <input type="number" step="0.01" id="saleRate" placeholder="0.00" required>
                 </div>
 
                 <button type="submit" class="submit-btn" id="submitFormBtn">Save Stock (Enter)</button>
@@ -375,8 +321,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-
-        // Updated Configuration Object
         const firebaseConfig = {
             apiKey: "AIzaSyDTDU7X7B3B0a_PfUCAei4KKNG6iD3spAg",
             authDomain: "my-stock-6f9f4.firebaseapp.com",
@@ -392,7 +336,6 @@
         const stockRef = ref(database, 'my-shop/my-stock'); 
 
         const modalOverlay = document.getElementById('modalOverlay');
-        const openModalBtn = document.getElementById('openModalBtn');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const stockForm = document.getElementById('stockForm');
         const searchBar = document.getElementById('searchBar');
@@ -402,28 +345,41 @@
         const dynamicTablesContainer = document.getElementById('dynamicTablesContainer');
         const modalTitleText = document.getElementById('modalTitleText');
         const submitFormBtn = document.getElementById('submitFormBtn');
-        const editingItemKeyField = document.getElementById('editingItemKey');
 
         let completeDatabaseObject = {}; 
 
-        openModalBtn.addEventListener('click', () => {
+        function openAddStockModal() {
             resetFormStates();
             modalTitleText.innerText = "Add New Inventory";
             submitFormBtn.innerText = "Save Stock (Enter)";
-            document.getElementById('itemName').disabled = false;
             modalOverlay.classList.add('active');
-            document.getElementById('itemName').focus(); 
-        });
+            setTimeout(() => {
+                document.getElementById('itemName').focus();
+            }, 50);
+        }
 
-        closeModalBtn.addEventListener('click', () => {
+        function closeStockModal() {
             modalOverlay.classList.remove('active');
             resetFormStates();
-        });
+        }
+
+        closeModalBtn.addEventListener('click', closeStockModal);
 
         modalOverlay.addEventListener('click', (e) => {
             if(e.target === modalOverlay) {
-                modalOverlay.classList.remove('active');
-                resetFormStates();
+                closeStockModal();
+            }
+        });
+
+        // Keyboard Shortcuts Listeners
+        window.addEventListener('keydown', (e) => {
+            if ((e.key === '+' || e.key === '=') && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'SELECT') {
+                e.preventDefault();
+                openAddStockModal();
+            }
+            
+            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+                closeStockModal();
             }
         });
 
@@ -441,49 +397,16 @@
 
         function resetFormStates() {
             stockForm.reset();
-            editingItemKeyField.value = "";
             customUnitField.style.display = 'none';
             customUnitNameInput.required = false;
             rebuildModalSelectMenu();
         }
 
-        // --- GLOBAL WINDOW ATTACHED FUNCTION TO TRIGGER EDIT FROM TABLE ---
-        window.triggerEditItemRecord = function(itemKeyReference) {
-            resetFormStates();
-            
-            const targetItem = completeDatabaseObject[itemKeyReference];
-            if(!targetItem) return;
-
-            // Fill details into the form inputs
-            editingItemKeyField.value = itemKeyReference;
-            document.getElementById('itemName').value = targetItem.itemName || itemKeyReference;
-            // Disable changing names to keep the direct database tracking clean
-            document.getElementById('itemName').disabled = true; 
-            document.getElementById('itemQty').value = targetItem.quantity || 0;
-            document.getElementById('purchaseRate').value = targetItem.purchaseRate || 0;
-            document.getElementById('saleRate').value = targetItem.saleRate || 0;
-
-            // Pre-select correct dropdown metric element
-            itemUnitDropdown.value = targetItem.unit || "";
-
-            // Change form titles to reflect editing mode status
-            modalTitleText.innerText = "Update Existing Inventory Item";
-            submitFormBtn.innerText = "Update Stock Record";
-
-            // Open the view modal container frame
-            modalOverlay.classList.add('active');
-            document.getElementById('itemQty').focus();
-        };
-
         stockForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
-            let cleanName = editingItemKeyField.value;
             let rawName = document.getElementById('itemName').value.trim();
-            
-            if(!cleanName) {
-                cleanName = rawName.replace(/[\.\#\$\[\]\/]/g, "-");
-            }
+            let cleanName = rawName.replace(/[\.\#\$\[\]\/]/g, "-");
 
             const qty = parseFloat(document.getElementById('itemQty').value);
             
@@ -493,20 +416,21 @@
                 unit = formattedValue.charAt(0).toUpperCase() + formattedValue.slice(1);
             }
 
-            const pRate = parseFloat(document.getElementById('purchaseRate').value);
             const sRate = parseFloat(document.getElementById('saleRate').value);
 
             const specificItemRef = ref(database, 'my-shop/my-stock/' + cleanName);
+
+            // Note: Keeping existing purchaseRate intact in background if it exists, otherwise setting default or omitting
+            const currentPurchaseRate = (completeDatabaseObject[cleanName] && completeDatabaseObject[cleanName].purchaseRate) ? completeDatabaseObject[cleanName].purchaseRate : 0;
 
             set(specificItemRef, {
                 itemName: rawName, 
                 quantity: qty,
                 unit: unit,
-                purchaseRate: pRate,
+                purchaseRate: currentPurchaseRate,
                 saleRate: sRate
             }).then(() => {
-                resetFormStates();
-                modalOverlay.classList.remove('active'); 
+                closeStockModal();
             }).catch((error) => {
                 alert("Database Error: " + error.message);
             });
@@ -541,7 +465,7 @@
             rebuildModalSelectMenu();
 
             if (liveUniqueUnitsSet.size === 0) {
-                dynamicTablesContainer.innerHTML = `<div class="no-data" style="background:white; border-radius:16px; padding:40px; border:1px dashed #cbd5e1;">No inventory data logs saved in database yet. Click "Add Stock" to populate entries.</div>`;
+                dynamicTablesContainer.innerHTML = `<div class="no-data" style="background:white; border-radius:16px; padding:40px; border:1px dashed #cbd5e1;">No inventory data logs saved in database yet. Press '+' key to add entries.</div>`;
                 return;
             }
 
@@ -566,27 +490,18 @@
                                 <tr>
                                     <th>Item Name</th>
                                     <th>Stock Volume</th>
-                                    <th>Purchase Rate</th>
                                     <th>Sale Rate</th>
-                                    <th style="text-align: right; padding-right:24px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${associatedItemsArray.map(itemObj => {
                                     const displayTitleName = itemObj.data.itemName || itemObj.id;
-                                    const pRateFormatted = parseFloat(itemObj.data.purchaseRate || 0).toFixed(2);
                                     const sRateFormatted = parseFloat(itemObj.data.saleRate || 0).toFixed(2);
                                     return `
                                         <tr>
                                             <td><strong>${displayTitleName}</strong></td>
                                             <td>${itemObj.data.quantity} ${activeUnit.toLowerCase()}</td>
-                                            <td>₹ ${pRateFormatted}</td>
                                             <td>₹ ${sRateFormatted}</td>
-                                            <td style="text-align: right; padding-right:16px;">
-                                                <button class="edit-row-btn" onclick="triggerEditItemRecord('${itemObj.id}')">
-                                                    ✏️ Edit
-                                                </button>
-                                            </td>
                                         </tr>
                                     `;
                                 }).join('')}
