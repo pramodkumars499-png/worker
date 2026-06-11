@@ -386,7 +386,6 @@
         .final-action-submit.orange-btn { background-color: #f59e0b; }
 
         /* PRINTING & DISPLAY INVOICE PREVIEW CARD STYLES */
-        /* Scroll container for mobile viewboards to keep invoice structured */
         .invoice-scroll-wrapper {
             width: 100%;
             overflow-x: auto;
@@ -402,7 +401,7 @@
             border-radius: 0; 
             color: #000; 
             width: 100%; 
-            min-width: 750px; /* Prevents text squeezing/overlapping on small frames */
+            min-width: 750px; 
             max-width: 800px; 
             margin: 0 auto;
         }
@@ -456,7 +455,7 @@
             }
         }
 
-        /* CSS PRINT STYLES - Targets only the specific printable container */
+        /* CSS PRINT STYLES */
         @media print {
             body * { visibility: hidden; }
             #printableInvoiceAreaContainer, #printableInvoiceAreaContainer * { visibility: visible; }
@@ -476,10 +475,10 @@
 
         <div class="action-button-grid">
             <button class="op-btn sales-invoice-btn" id="openSalesModalBtn">
-                ➕ Standard Sales Bill (Outward Sale)
+                Sales Bill
             </button>
             <button class="op-btn return-exchange-btn" id="openReturnModalBtn">
-                🔄 Customer Return / Exchange Invoice
+                Return/Exchange
             </button>
         </div>
 
@@ -517,7 +516,6 @@
             <div class="no-data-card">Connecting to billing database...</div>
         </div>
     </div>
-
 
     <div class="modal-overlay" id="salesModalOverlay">
         <div class="modal-box">
@@ -562,7 +560,6 @@
             </form>
         </div>
     </div>
-
 
     <div class="modal-overlay" id="returnModalOverlay">
         <div class="modal-box" style="border-top: 6px solid #f59e0b;">
@@ -621,7 +618,6 @@
             </form>
         </div>
     </div>
-
 
     <div class="modal-overlay" id="viewInvoiceModalOverlay">
         <div class="modal-box" style="max-width: 880px; background-color: #525659; padding: 16px;">
@@ -697,7 +693,6 @@
     </div>
 
     <div id="dynamicDatalistContainer"></div>
-
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -1170,8 +1165,7 @@
             }
         });
 
-
-        // EXPLICIT MODAL ACTION VIEW BUILDER ROUTINES
+        // VIEW INVOICE PREVIEW
         window.openInvoiceDocumentPreviewView = function(firebaseKeyString) {
             const invoice = localBillsHistoryCache.find(x => x.firebaseKey === firebaseKeyString);
             if(!invoice) return;
@@ -1181,7 +1175,7 @@
             const isSale = invoice.invoiceType === 'SALE';
             const badge = document.getElementById('printInvoiceTypeBadge');
             
-            badge.innerText = isSale ? "Outward Sale Receipt" : "Return & Exchange Adjustment";
+            badge.innerText = isSale ? "Quotation Receipt" : "Return & Exchange Adjustment";
             badge.style.backgroundColor = isSale ? "#e0f2fe" : "#fef3c7";
             badge.style.color = isSale ? "#0369a1" : "#b45309";
 
@@ -1252,7 +1246,7 @@
             viewInvoiceModalOverlay.classList.add('active');
         };
 
-        // DOWNLOAD VISUAL INTERFACE AS JPG FILE VIA CANVAS PARSING
+        // DOWNLOAD INTERFACE AS JPG
         document.getElementById('modalActionJpgTrigger').addEventListener('click', () => {
             const frameTarget = document.getElementById('capturedInvoiceElementFrame');
             if(!frameTarget || !activeViewBillContext) return;
@@ -1275,17 +1269,16 @@
             });
         });
 
-        // WINDOW PRINT ACTION POPUP HOOK
+        // PRINT ACTION
         document.getElementById('modalActionPrintTrigger').addEventListener('click', () => {
             window.print();
         });
 
-        // CONVERTS INVOICE TO REAL IMAGE BLOB FOR SHARING 
+        // SHARING LOGIC
         window.executeWebShareRoutine = async function(firebaseKeyString) {
             const invoice = localBillsHistoryCache.find(x => x.firebaseKey === firebaseKeyString);
             if(!invoice) return;
 
-            // Load bill onto hidden printable layout view first
             openInvoiceDocumentPreviewView(firebaseKeyString);
 
             setTimeout(() => {
@@ -1301,7 +1294,6 @@
                         const clientNameSanitized = (invoice.customerName || 'Customer').replace(/[^a-zA-Z0-9]/g, '_');
                         const imageFile = new File([blob], `Invoice_${invoice.billNumber}_${clientNameSanitized}.jpg`, { type: 'image/jpeg' });
 
-                        // Verify system capability to transfer files natively
                         if (navigator.canShare && navigator.canShare({ files: [imageFile] })) {
                             try {
                                 await navigator.share({
@@ -1352,14 +1344,12 @@
             });
         }
 
-        // Action hook inside document view modal
         document.getElementById('modalActionShareTrigger').addEventListener('click', () => {
             if(activeViewBillContext && activeViewBillContext.firebaseKey) {
                 executeWebShareRoutine(activeViewBillContext.firebaseKey);
             }
         });
 
-        // Isolated individual card direct printing routine
         window.triggerDirectCardPrintJob = function(firebaseKeyString) {
             openInvoiceDocumentPreviewView(firebaseKeyString);
             setTimeout(() => {
@@ -1367,8 +1357,7 @@
             }, 400);
         };
 
-
-        // LEDGER GRID RENDERING CONTROLLER WITH FILTERS
+        // GRID GENERATOR
         function renderCustomerBillsGrid() {
             historyContainerWrapper.innerHTML = '';
             
@@ -1433,6 +1422,7 @@
         filterMonth.addEventListener('change', renderCustomerBillsGrid);
         filterYear.addEventListener('change', renderCustomerBillsGrid);
 
+        // DATA SYNCHRONIZATION WITH BACKEND DATABASE
         onValue(customerBillsRef, (snapshot) => {
             const dataMap = snapshot.val();
             let largestFoundSequenceInt = 0;
@@ -1460,7 +1450,7 @@
                     billNumber: cleanIdString,
                     customerName: doc.customerName || 'Walk-in Customer',
                     date: doc.date || '',
-                    invoiceType: "RETURN_EXCHANGE",
+                    invoiceType: doc.invoiceType || 'SALE', // Fixed: Keeps 'SALE' entries intact!
                     itemsList: doc.itemsList || [],
                     grandTotal: doc.grandTotal || 0,
                     timestamp: doc.timestamp || parsedInt || 0
