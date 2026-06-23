@@ -140,38 +140,23 @@
         @media (min-width: 768px) {
             .search-wrapper { width: auto; }
         }
+        
+        /* Updated date indicator styling to look locked/read-only */
         .search-wrapper input {
             padding: 10px 16px;
             border: 1px solid #cbd5e1;
             border-radius: 8px;
             font-size: 14px;
-            color: #0f172a;
+            color: #475569;
+            background-color: #f1f5f9;
             outline: none;
             flex-grow: 1;
-            transition: border-color 0.2s;
+            font-weight: 600;
+            pointer-events: none; /* Prevents touch/click changes completely */
         }
         @media (min-width: 768px) {
-            .search-wrapper input { min-width: 250px; flex-grow: 0; }
+            .search-wrapper input { min-width: 200px; flex-grow: 0; }
         }
-        .search-wrapper input:focus { border-color: #0284c7; }
-
-        .filter-select {
-            padding: 10px 14px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #334155;
-            background-color: white;
-            outline: none;
-            cursor: pointer;
-            font-weight: 500;
-            transition: border-color 0.2s;
-            flex-grow: 1;
-        }
-        @media (min-width: 768px) {
-            .filter-select { flex-grow: 0; }
-        }
-        .filter-select:focus { border-color: #0284c7; }
 
         /* LOG ARCHIVE DISPLAY LAYOUT */
         #historyContainerWrapper {
@@ -485,30 +470,7 @@
         <div class="archive-header-bar">
             <div class="section-title">Customer Ledger Invoices <span id="billCountDisplay">0</span></div>
             <div class="search-wrapper">
-                <select id="filterMonth" class="filter-select">
-                    <option value="">All Months</option>
-                    <option value="01">January</option>
-                    <option value="02">February</option>
-                    <option value="03">March</option>
-                    <option value="04">April</option>
-                    <option value="05">May</option>
-                    <option value="06">June</option>
-                    <option value="07">July</option>
-                    <option value="08">August</option>
-                    <option value="09">September</option>
-                    <option value="10">October</option>
-                    <option value="11">November</option>
-                    <option value="12">December</option>
-                </select>
-
-                <select id="filterYear" class="filter-select">
-                    <option value="">All Years</option>
-                    <option value="2026">2026</option>
-                    <option value="2025">2025</option>
-                    <option value="2024">2024</option>
-                </select>
-
-                <input type="text" id="customerBillSearch" placeholder="Search Customer Name or Bill ID...">
+                <input type="date" id="filterDate" readonly>
             </div>
         </div>
 
@@ -719,10 +681,7 @@
         const viewInvoiceModalOverlay = document.getElementById('viewInvoiceModalOverlay');
         const historyContainerWrapper = document.getElementById('historyContainerWrapper');
         const billCountDisplay = document.getElementById('billCountDisplay');
-        const customerBillSearch = document.getElementById('customerBillSearch');
-        
-        const filterMonth = document.getElementById('filterMonth');
-        const filterYear = document.getElementById('filterYear');
+        const filterDate = document.getElementById('filterDate');
         const dynamicDatalistContainer = document.getElementById('dynamicDatalistContainer');
 
         const salesValidationBanner = document.getElementById('salesValidationBanner');
@@ -736,10 +695,10 @@
 
         function initializeDefaultDateFilters() {
             const today = new Date();
-            const currentMonthNumeric = String(today.getMonth() + 1).padStart(2, '0');
-            const currentYearNumeric = String(today.getFullYear());
-            filterMonth.value = currentMonthNumeric;
-            filterYear.value = currentYearNumeric;
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            filterDate.value = `${year}-${month}-${day}`;
         }
 
         initializeDefaultDateFilters();
@@ -1360,28 +1319,16 @@
         // GRID GENERATOR
         function renderCustomerBillsGrid() {
             historyContainerWrapper.innerHTML = '';
-            
-            const searchKeyword = customerBillSearch.value.trim().toLowerCase();
-            const selectedMonth = filterMonth.value; 
-            const selectedYear = filterYear.value;   
+            const selectedTargetDateStr = filterDate.value; 
 
             let targetSourceRecordsList = localBillsHistoryCache.filter(invoice => {
-                const matchesText = (invoice.customerName || '').toLowerCase().includes(searchKeyword) ||
-                                    (invoice.billNumber || '').toLowerCase().includes(searchKeyword);
-                
-                const invoiceDateStr = invoice.date || ''; 
-                const dateParts = invoiceDateStr.split('-'); 
-                
-                const matchesMonth = selectedMonth === '' ? true : (dateParts[1] === selectedMonth);
-                const matchesYear = selectedYear === '' ? true : (dateParts[0] === selectedYear);
-
-                return matchesText && matchesMonth && matchesYear;
+                return (invoice.date || '') === selectedTargetDateStr;
             });
 
             billCountDisplay.innerText = targetSourceRecordsList.length;
 
             if (targetSourceRecordsList.length === 0) {
-                historyContainerWrapper.innerHTML = `<div class="no-data-card">No invoice matches found matching your current filters.</div>`;
+                historyContainerWrapper.innerHTML = `<div class="no-data-card">No invoices found for today's date.</div>`;
                 return;
             }
 
@@ -1418,10 +1365,6 @@
             });
         }
 
-        customerBillSearch.addEventListener('input', renderCustomerBillsGrid);
-        filterMonth.addEventListener('change', renderCustomerBillsGrid);
-        filterYear.addEventListener('change', renderCustomerBillsGrid);
-
         // DATA SYNCHRONIZATION WITH BACKEND DATABASE
         onValue(customerBillsRef, (snapshot) => {
             const dataMap = snapshot.val();
@@ -1450,7 +1393,7 @@
                     billNumber: cleanIdString,
                     customerName: doc.customerName || 'Walk-in Customer',
                     date: doc.date || '',
-                    invoiceType: doc.invoiceType || 'SALE', // Fixed: Keeps 'SALE' entries intact!
+                    invoiceType: doc.invoiceType || 'SALE', 
                     itemsList: doc.itemsList || [],
                     grandTotal: doc.grandTotal || 0,
                     timestamp: doc.timestamp || parsedInt || 0
