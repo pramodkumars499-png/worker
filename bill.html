@@ -141,7 +141,6 @@
             .search-wrapper { width: auto; }
         }
         
-        /* Updated date indicator styling to look locked/read-only */
         .search-wrapper input {
             padding: 10px 16px;
             border: 1px solid #cbd5e1;
@@ -152,7 +151,7 @@
             outline: none;
             flex-grow: 1;
             font-weight: 600;
-            pointer-events: none; /* Prevents touch/click changes completely */
+            pointer-events: none;
         }
         @media (min-width: 768px) {
             .search-wrapper input { min-width: 200px; flex-grow: 0; }
@@ -292,7 +291,6 @@
             padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;
         }
 
-        /* Parallel Row Configuration for Desktop Layout */
         .bill-item-row {
             display: grid; 
             grid-template-columns: 1fr 1.5fr 0.7fr 1fr 1fr auto;
@@ -310,7 +308,6 @@
             grid-template-columns: 1fr 1.8fr 0.8fr 1.2fr auto;
         }
 
-        /* RESPONSIVE MOBILE ITEMS LAYOUT BAR OVERRIDES */
         @media (max-width: 768px) {
             .bill-item-row, .return-item-row {
                 grid-template-columns: 1fr 1fr !important;
@@ -349,7 +346,6 @@
         }
         .summary-line { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; }
 
-        /* WARNING STYLES */
         .validation-warning-banner {
             display: none;
             background-color: #fef2f2;
@@ -367,10 +363,17 @@
         .final-action-submit {
             background-color: #0284c7; color: white; border: none; padding: 14px;
             border-radius: 8px; font-size: 15px; font-weight: 700; width: 100%; margin-top: 16px; cursor: pointer;
+            transition: all 0.2s ease;
         }
         .final-action-submit.orange-btn { background-color: #f59e0b; }
+        
+        /* Disabled & Loading Button Styling */
+        .final-action-submit:disabled {
+            background-color: #94a3b8 !important;
+            cursor: not-allowed !important;
+            opacity: 0.8;
+        }
 
-        /* PRINTING & DISPLAY INVOICE PREVIEW CARD STYLES */
         .invoice-scroll-wrapper {
             width: 100%;
             overflow-x: auto;
@@ -401,7 +404,6 @@
             padding: 12px 10px; border: 1px solid #cbd5e1; font-size: 14px; color: #0f172a;
         }
 
-        /* CUSTOM MODAL TOP BUTTONS LAYOUT REWRITE FOR SMALL VIZ PHONES */
         .modal-action-header-row {
             display: flex;
             justify-content: space-between;
@@ -440,7 +442,6 @@
             }
         }
 
-        /* CSS PRINT STYLES */
         @media print {
             body * { visibility: hidden; }
             #printableInvoiceAreaContainer, #printableInvoiceAreaContainer * { visibility: visible; }
@@ -506,14 +507,13 @@
                     <input type="text" id="salesCustomerName" placeholder="Enter Customer Name" required>
                 </div>
 
-<div class="block-section-heading">
-    <span>Products Sold</span>
-</div>
-<div id="salesRowsContainer"></div>
-<!-- Shifted Down Below Rows -->
-<div style="margin-top: 8px; margin-bottom: 16px;">
-    <button type="button" class="add-row-small-btn" id="addSalesItemRowBtn" style="padding: 6px 14px; font-size: 13px;">+ Add Product Line</button>
-</div>
+                <div class="block-section-heading">
+                    <span>Products Sold</span>
+                </div>
+                <div id="salesRowsContainer"></div>
+                <div style="margin-top: 8px; margin-bottom: 16px;">
+                    <button type="button" class="add-row-small-btn" id="addSalesItemRowBtn" style="padding: 6px 14px; font-size: 13px;">+ Add Product Line</button>
+                </div>
 
                 <div class="calculation-summary-bar">
                     <div class="summary-line" style="color:#166534; font-size:16px; border-top:1px dashed #cbd5e1; padding-top:8px;">
@@ -521,7 +521,7 @@
                         <span>₹ <span id="salesGrandTotalText">0.00</span></span>
                     </div>
                 </div>
-                <button type="submit" class="final-action-submit">Commit & Save Sales Invoice</button>
+                <button type="submit" id="submitSalesBtn" class="final-action-submit">Commit & Save Sales Invoice</button>
             </form>
         </div>
     </div>
@@ -553,23 +553,21 @@
                     <input type="text" id="returnCustomerName" placeholder="Enter Customer Name" required>
                 </div>
 
-<div class="block-section-heading" style="color:#ef4444; border-bottom:1px solid #fecaca; padding-bottom:4px;">
-    <span>1. Material Returned By Customer (+ Stock Restored)</span>
-</div>
-<div id="returnRowsContainer"></div>
-<!-- Shifted Down Below Rows -->
-<div style="margin-top: 8px; margin-bottom: 24px;">
-    <button type="button" class="add-row-small-btn" id="addReturnItemRowBtn" style="color:#ef4444; border-color:#fca5a5; padding: 6px 14px; font-size: 13px;">+ Add Returned Row</button>
-</div>
+                <div class="block-section-heading" style="color:#ef4444; border-bottom:1px solid #fecaca; padding-bottom:4px;">
+                    <span>1. Material Returned By Customer (+ Stock Restored)</span>
+                </div>
+                <div id="returnRowsContainer"></div>
+                <div style="margin-top: 8px; margin-bottom: 24px;">
+                    <button type="button" class="add-row-small-btn" id="addReturnItemRowBtn" style="color:#ef4444; border-color:#fca5a5; padding: 6px 14px; font-size: 13px;">+ Add Returned Row</button>
+                </div>
 
-<div class="block-section-heading" style="color:#22c55e; border-bottom:1px solid #bbf7d0; padding-bottom:4px;">
-    <span>2. New Exchange Material Issued (- Stock Reduced)</span>
-</div>
-<div id="exchangeRowsContainer"></div>
-<!-- Shifted Down Below Rows -->
-<div style="margin-top: 8px; margin-bottom: 16px;">
-    <button type="button" class="add-row-small-btn" id="addExchangeItemRowBtn" style="color:#22c55e; border-color:#86efac; padding: 6px 14px; font-size: 13px;">+ Add Exchange Row</button>
-</div>
+                <div class="block-section-heading" style="color:#22c55e; border-bottom:1px solid #bbf7d0; padding-bottom:4px;">
+                    <span>2. New Exchange Material Issued (- Stock Reduced)</span>
+                </div>
+                <div id="exchangeRowsContainer"></div>
+                <div style="margin-top: 8px; margin-bottom: 16px;">
+                    <button type="button" class="add-row-small-btn" id="addExchangeItemRowBtn" style="color:#22c55e; border-color:#86efac; padding: 6px 14px; font-size: 13px;">+ Add Exchange Row</button>
+                </div>
 
                 <div class="calculation-summary-bar">
                     <div class="summary-line" style="color: #ef4444;">
@@ -585,7 +583,7 @@
                         <span>₹ <span id="netSettlementTotalText">0.00</span></span>
                     </div>
                 </div>
-                <button type="submit" class="final-action-submit orange-btn">Post Return & Exchange Adjustment</button>
+                <button type="submit" id="submitReturnBtn" class="final-action-submit orange-btn">Post Return & Exchange Adjustment</button>
             </form>
         </div>
     </div>
@@ -976,6 +974,11 @@
                 return;
             }
 
+            const submitBtn = document.getElementById('submitSalesBtn');
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerText = "⏳ Saving Invoice, Please Wait...";
+
             let billNum = nextBillSequenceStr;
             const cleanBillKey = "BILL-" + billNum;
             const cName = document.getElementById('salesCustomerName').value.trim();
@@ -997,6 +1000,8 @@
 
             if (finalProductsList.length === 0) {
                 alert("Please add at least one valid product line.");
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalBtnText;
                 return;
             }
 
@@ -1035,6 +1040,9 @@
                 alert(`Sales Bill #${billNum} saved successfully!`);
             } catch (err) {
                 alert("Database error filing invoice: " + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalBtnText;
             }
         });
 
@@ -1048,6 +1056,11 @@
                 redFailedItems[0].focus();
                 return;
             }
+
+            const submitBtn = document.getElementById('submitReturnBtn');
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerText = "⏳ Processing Adjustment, Please Wait...";
 
             let billNum = nextBillSequenceStr;
             const cleanBillKey = "BILL-" + billNum;
@@ -1079,6 +1092,8 @@
 
             if (returnedItems.length === 0 && exchangeIssuedItems.length === 0) {
                 alert("Please add items to return or exchange section fields.");
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalBtnText;
                 return;
             }
 
@@ -1130,6 +1145,9 @@
                 alert(`Adjustment Return Bill #${billNum} successfully saved inside records.`);
             } catch (err) {
                 alert("Error handling adjustment transaction rules: " + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalBtnText;
             }
         });
 
